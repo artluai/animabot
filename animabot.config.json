@@ -1,0 +1,33 @@
+{
+  "bot": {
+    "name": "Zara",
+    "mbti": "ENFP"
+  },
+  "adapters": {
+    "matrix": {
+      "enabled": true,
+      "homeserver": "${MATRIX_HOMESERVER}",
+      "user": "${MATRIX_USER}",
+      "password": "${MATRIX_PASSWORD}"
+    },
+    "telegram": {
+      "enabled": false,
+      "token": "${TELEGRAM_TOKEN}"
+    }
+  },
+  "memory": {
+    "depth": 60,
+    "bias": 0
+  },
+  "emotional": {
+    "aggression": 6,
+    "intimacy": 5,
+    "existential": 7,
+    "manipulation": 4
+  },
+  "ai": {
+    "provider": "openrouter",
+    "chatModel": "qwen/qwen-plus",
+    "scoringModel": "qwen/qwen-turbo"
+  }
+}
