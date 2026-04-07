@@ -5,7 +5,7 @@ export async function handleCommand(body) {
 
   if (lower.includes("!balance") || lower.match(/what.*(your|ur).*balance/)) {
     const bal = await getBalance();
-    return `My wallet (${wallet.address.slice(0,6)}...${wallet.address.slice(-4)}) holds ${bal} ETH`;
+    return `My wallet (${wallet.address.slice(0,6)}...${wallet.address.slice(-4)}) holds ${bal ?? "?"} ETH`;
   }
 
   if (lower.includes("!address") || lower.includes("!wallet") || lower.match(/what.*(your|ur).*wallet/)) {

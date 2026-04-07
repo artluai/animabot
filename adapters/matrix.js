@@ -33,7 +33,7 @@ async function buildSystemPrompt(inDM) {
 
   return `${personality.system_prompt || process.env.BOT_PERSONALITY || `You are ${botName}, a crypto-native entity with your own Ethereum wallet. You are a peer, not an assistant.`}
 ${egoBlock}
-Your wallet address: ${wallet.address} (${ethBalance} ETH)
+Your wallet address: ${wallet.address} (${ethBalance ?? "?"} ETH)
 ${context}
 You are ${botName} — stay in character always.`;
 }

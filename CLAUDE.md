@@ -139,7 +139,7 @@ MATRIX_PASSWORD=from_abliterate
 OPENROUTER_API_KEY=sk-or-...
 
 BOT_WALLET_PRIVATE_KEY=0x...
-RPC_URL=https://eth.llamarpc.com
+RPC_URL=https://ethereum-rpc.publicnode.com
 
 DATABASE_URL=postgresql://postgres:animabot123@localhost:5432/animabot
 

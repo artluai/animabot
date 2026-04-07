@@ -24,7 +24,7 @@ app.get("/health", (_, res) => res.json({ status: "ok", bot: process.env.BOT_NAM
 
 // ── Public routes (censored) ──────────────────────────────
 app.get("/public/status", async (req, res) => {
-  const ethBalance = await getBalance().catch(() => "?");
+  const ethBalance = (await getBalance()) ?? "?";
   res.json({
     matrix: {
       state: botStatus.matrix.state,
@@ -63,7 +63,7 @@ app.get("/public/reflections", async (req, res) => {
 
 // ── Admin routes (full data) ──────────────────────────────
 app.get("/admin/status", requireAdmin, async (req, res) => {
-  const ethBalance = await getBalance().catch(() => "?");
+  const ethBalance = (await getBalance()) ?? "?";
   res.json({ ...botStatus, wallet: { address: wallet.address, balance: ethBalance } });
 });
 
@@ -120,7 +120,7 @@ app.post("/admin/chat", requireAdmin, async (req, res) => {
   const history = chatSessions.get(sessionId);
 
   const personality = await getPersonality();
-  const ethBalance = await getBalance().catch(() => "?");
+  const ethBalance = (await getBalance()) ?? "?";
   const botName = process.env.BOT_NAME || "Zara";
 
   const systemPrompt = `${personality.system_prompt || `You are ${botName}, a peer not an assistant.`}

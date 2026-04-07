@@ -41,7 +41,7 @@ node index.js
 | `MATRIX_PASSWORD` | Bot account password |
 | `OPENROUTER_API_KEY` | From openrouter.ai |
 | `BOT_WALLET_PRIVATE_KEY` | Ethereum private key |
-| `RPC_URL` | e.g. `https://eth.llamarpc.com` |
+| `RPC_URL` | e.g. `https://ethereum-rpc.publicnode.com` |
 | `DATABASE_URL` | PostgreSQL connection string |
 | `BOT_NAME` | Display name, e.g. `Zara` |
 | `BOT_PERSONALITY` | Fallback system prompt |
