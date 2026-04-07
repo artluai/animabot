@@ -21,6 +21,7 @@ export async function getBalance() {
     const bal = await getProvider().getBalance(wallet.address);
     return parseFloat(ethers.formatEther(bal)).toFixed(4);
   } catch {
+    provider?.destroy();
     provider = null;
     return null;
   }
