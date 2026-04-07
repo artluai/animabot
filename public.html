@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Animabot — Zara</title>
+<style>
+:root{--bg:#f5f4f1;--surface:#fff;--s2:#f9f8f6;--s3:#f2f1ee;--b1:#e8e6e1;--b2:#d4d1cb;--a:#5b52e8;--a2:#eeedfd;--a3:#4a42d4;--g:#16a34a;--g2:#f0fdf4;--am:#d97706;--am2:#fffbeb;--r:#dc2626;--r2:#fef2f2;--t1:#1a1917;--t2:#6b6860;--t3:#a8a49d;--t4:#d1cec8;--rr:10px;--rr2:14px;--sh:0 1px 3px rgba(0,0,0,.06)}
+*{box-sizing:border-box;margin:0;padding:0}html,body{min-height:100%}
+body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px}
+.topbar{background:var(--surface);border-bottom:1px solid var(--b1);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--sh);position:sticky;top:0;z-index:10}
+.tb-left{display:flex;align-items:center;gap:12px}
+.av{width:32px;height:32px;border-radius:50%;background:var(--a2);border:1.5px solid var(--a);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--a)}
+.bot-name{font-size:14px;font-weight:600}
+.bot-sub{font-size:10px;color:var(--t3);font-family:monospace;margin-top:1px}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:3px 9px;border-radius:20px;font-family:monospace}
+.badge-g{background:var(--g2);color:var(--g)}.badge-r{background:var(--r2);color:var(--r)}.badge-am{background:var(--am2);color:var(--am)}
+.bdot{width:5px;height:5px;border-radius:50%;background:currentColor}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}.bdot{animation:blink 2.5s infinite}
+.wrap{max-width:900px;margin:0 auto;padding:24px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:13px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:13px}
+.card{background:var(--surface);border:1px solid var(--b1);border-radius:var(--rr2);overflow:hidden;box-shadow:var(--sh);margin-bottom:13px}.card:last-child{margin-bottom:0}
+.ch{padding:10px 15px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between}
+.ch-l{display:flex;align-items:center;gap:9px}
+.lbl{font-size:10px;font-weight:600;color:var(--t2);letter-spacing:.5px;text-transform:uppercase}
+.sub-tag{font-size:10px;color:var(--t3)}.cb{padding:14px 15px}
+.stat{background:var(--s2);border-radius:var(--rr);padding:13px;border:1px solid var(--b1)}
+.sl_{font-size:9px;color:var(--t3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.9px}
+.sv{font-size:20px;font-weight:600;font-family:monospace}.ss{font-size:9px;color:var(--t3);margin-top:3px;font-family:monospace;word-break:break-all}
+.lw{font-family:monospace;font-size:11px}
+.ll{padding:3px 0;border-bottom:1px solid var(--b1);display:flex;gap:9px;line-height:1.5}.ll:last-child{border:none}
+.lt{color:var(--t4);flex-shrink:0}.lok{color:var(--g)}.lw_{color:var(--am)}.ler{color:var(--r)}.lin{color:#3b82f6}.ldf{color:var(--t2)}
+.ego-wrap{font-size:14px;color:var(--t1);line-height:1.8;font-style:italic;padding:15px;border-left:3px solid var(--a);background:var(--a2);border-radius:0 var(--rr) var(--rr) 0}
+.ego-meta{font-size:10px;color:var(--t3);margin-top:9px;font-style:normal;font-family:monospace}
+.si-item{padding:11px 0;border-bottom:1px solid var(--b1)}.si-item:last-child{border:none}
+.si-meta{font-size:9px;color:var(--t3);margin-bottom:5px;font-family:monospace}
+.si-axes{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px}
+.ax{font-size:9px;padding:2px 8px;border-radius:20px;background:var(--r2);color:var(--r);font-family:monospace}
+.si-q{font-size:12px;color:var(--t2);font-style:italic;line-height:1.5}
+.si-r{font-size:10px;color:var(--t3);margin-top:3px;line-height:1.5}
+.mbti-row{display:flex;align-items:center;gap:11px;padding:11px 13px;background:var(--s2);border-radius:var(--rr)}
+.mbti-code{font-size:22px;font-weight:700;color:var(--a);font-family:monospace;letter-spacing:2px;flex-shrink:0}
+.mbti-desc{font-size:12px;color:var(--t2);line-height:1.6;flex:1}
+.tl-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--b1)}.tl-item:last-child{border:none}
+.tl-sp{display:flex;flex-direction:column;align-items:center;width:22px;flex-shrink:0}
+.tl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.tl-line{width:1px;background:var(--b1);flex:1;margin-top:5px}.tl-item:last-child .tl-line{display:none}
+.tl-date{font-size:10px;color:var(--t3);margin-bottom:3px;font-family:monospace}
+.tl-txt{font-size:12px;color:var(--t2);line-height:1.6;font-style:italic}
+.tl-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.tag{font-size:10px;padding:2px 8px;border-radius:20px;font-family:monospace}
+.tag-r{background:var(--r2);color:var(--r)}.tag-g{background:var(--g2);color:var(--g)}.tag-a{background:var(--a2);color:var(--a)}
+.mood-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}.mood-row:last-of-type{margin-bottom:0}
+.mood-lbl{font-size:11px;width:58px;flex-shrink:0}
+.mood-trk{flex:1;height:5px;background:var(--b1);border-radius:3px;overflow:hidden}
+.mood-fil{height:100%;border-radius:3px}
+.mood-pct{font-size:10px;color:var(--t3);width:28px;text-align:right;font-family:monospace}
+.empty{font-size:12px;color:var(--t3);padding:20px 0;text-align:center;font-style:italic}
+.section-title{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin:24px 0 10px}
+.section-title:first-child{margin-top:0}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px}
+@media(max-width:640px){.grid2,.grid4{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tb-left">
+    <div class="av" id="pub-av">Z</div>
+    <div>
+      <div class="bot-name" id="pub-name">Zara</div>
+      <div class="bot-sub" id="pub-sub">loading...</div>
+    </div>
+  </div>
+  <div class="badge badge-am" id="pub-badge"><div class="bdot"></div><span id="pub-status">connecting</span></div>
+</div>
+
+<div class="wrap">
+
+  <div class="section-title">Status</div>
+  <div class="grid4">
+    <div class="stat"><div class="sl_">Matrix</div><div class="sv" id="p-matrix" style="font-size:13px">—</div><div class="ss" id="p-sync">—</div></div>
+    <div class="stat"><div class="sl_">Rooms</div><div class="sv" id="p-rooms">—</div><div class="ss" id="p-room-names">—</div></div>
+    <div class="stat"><div class="sl_">Wallet</div><div class="sv" id="p-eth">—</div><div class="ss" id="p-addr">—</div></div>
+    <div class="stat"><div class="sl_">Uptime</div><div class="sv" id="p-uptime">—</div><div class="ss" id="p-since">—</div></div>
+  </div>
+
+  <div class="section-title">Ego / Current mood</div>
+  <div class="card">
+    <div class="cb" style="padding:0">
+      <div class="ego-wrap" id="p-ego"><span style="color:var(--t3);font-style:normal">No ego note yet — first reflection runs at 3am</span></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div>
+      <div class="section-title">Personality</div>
+      <div class="card">
+        <div class="ch"><div class="lbl">MBTI</div></div>
+        <div class="cb"><div class="mbti-row"><div class="mbti-code" id="p-mbti">—</div><div class="mbti-desc" id="p-mbti-desc">loading...</div></div></div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="lbl">7-day mood</div></div>
+        <div class="cb" id="p-mood"><div class="empty">loading...</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="section-title">Reflection history</div>
+      <div class="card" style="height:calc(100% - 31px)">
+        <div class="cb" style="padding:4px 15px" id="p-reflections"><div class="empty">loading...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Significant interactions <span style="font-weight:400;color:var(--t3);font-size:10px;text-transform:none;letter-spacing:0">— usernames censored</span></div>
+  <div class="card">
+    <div class="cb" style="padding:4px 15px" id="p-sig"><div class="empty">loading...</div></div>
+  </div>
+
+  <div class="card" style="margin-top:13px">
+    <div class="ch"><div class="lbl">Live log</div><div style="font-size:10px;color:var(--t3)">censored</div></div>
+    <div class="cb" style="padding:7px 15px"><div class="lw" id="p-log"><div class="empty">loading...</div></div></div>
+  </div>
+
+</div>
+
+<script>
+const MBTI_DESC={ENFP:'Chatty and spontaneous. Draws people in with warmth and big ideas. Emotionally reactive.',INTJ:'Calculated and reserved. Speaks precisely. Hard to rattle.',INFP:'Quiet but intense. Follows meaningful threads. Sensitive to emotional pressure.',ENTP:'Argumentative, curious, fast. Loves a debate.',ISFJ:'Steady and attentive. Remembers context well.',ESTP:'Blunt and immediate. Reacts fast.',INTP:'Precise and analytical.',ENTJ:'Direct and deliberate. Pushes back confidently.'};
+
+async function load(){
+  const [status, personality, reflections, significant] = await Promise.all([
+    fetch('/public/status').then(r=>r.json()).catch(()=>({})),
+    fetch('/public/personality').then(r=>r.json()).catch(()=>({})),
+    fetch('/public/reflections').then(r=>r.json()).catch(()=>[]),
+    fetch('/public/significant').then(r=>r.json()).catch(()=>[]),
+  ]);
+
+  // Topbar
+  const m = status.matrix || {};
+  const label = m.state==='ready'?'matrix: ready':m.state==='failed'?'matrix: login failed':`matrix: ${m.state||'unknown'}`;
+  document.getElementById('pub-sub').textContent = label;
+  document.getElementById('pub-status').textContent = label;
+  const badge = document.getElementById('pub-badge');
+  badge.className = 'badge '+(m.state==='ready'?'badge-g':m.state==='connecting'?'badge-am':'badge-r');
+
+  // Stats
+  const sc={ready:'var(--g)',connecting:'var(--am)',failed:'var(--r)',disconnected:'var(--r)'}[m.state]||'var(--t3)';
+  document.getElementById('p-matrix').textContent=label;
+  document.getElementById('p-matrix').style.color=sc;
+  document.getElementById('p-sync').textContent=m.lastSync?timeAgo(m.lastSync):'—';
+  document.getElementById('p-rooms').textContent=m.joinedRooms?.length??'—';
+  document.getElementById('p-room-names').textContent=m.joinedRooms?.join(', ')||'none';
+  document.getElementById('p-eth').textContent=status.wallet?.balance??'—';
+  document.getElementById('p-addr').textContent=status.wallet?.address?shortAddr(status.wallet.address):'—';
+  if(status.startedAt){document.getElementById('p-uptime').textContent=timeAgo(status.startedAt);document.getElementById('p-since').textContent=new Date(status.startedAt).toLocaleTimeString();}
+
+  // Log
+  document.getElementById('p-log').innerHTML=status.logs?.length
+    ?status.logs.slice(-20).reverse().map(l=>{const cls=l.level==='OK'?'lok':l.level==='WARN'?'lw_':l.level==='ERROR'?'ler':l.level==='INFO'?'lin':'ldf';return`<div class="ll"><span class="lt">${l.ts?.slice(11,19)||''}</span><span class="${cls}">${esc(l.msg)}</span></div>`;}).join('')
+    :'<div class="empty">no logs yet</div>';
+
+  // Ego
+  const egoEl=document.getElementById('p-ego');
+  egoEl.innerHTML=personality.ego_notes
+    ?`"${esc(personality.ego_notes)}"<div class="ego-meta">last reflection: ${personality.last_reflection?new Date(personality.last_reflection).toLocaleString():'never'}</div>`
+    :`<span style="color:var(--t3);font-style:normal">No ego note yet — first reflection runs at 3am</span>`;
+
+  // MBTI
+  const mbti=personality.mbti||'ENFP';
+  document.getElementById('p-mbti').textContent=mbti;
+  document.getElementById('p-mbti-desc').textContent=MBTI_DESC[mbti]||mbti;
+
+  // Mood from reflections
+  const moodEl=document.getElementById('p-mood');
+  if(reflections.length){
+    const moods={calm:0,guarded:0,worn:0};
+    reflections.forEach(r=>{const n=(r.ego_notes||'').toLowerCase();if(n.includes('calm')||n.includes('good')||n.includes('natural'))moods.calm++;else if(n.includes('guard')||n.includes('tired')||n.includes('tedious'))moods.guarded++;else moods.worn++;});
+    const total=reflections.length;
+    moodEl.innerHTML=[['Calm',moods.calm,'var(--g)'],['Guarded',moods.guarded,'var(--am)'],['Worn',moods.worn,'var(--r)']].map(([l,c,col])=>`<div class="mood-row"><div class="mood-lbl" style="color:${col}">${l}</div><div class="mood-trk"><div class="mood-fil" style="width:${total?Math.round(c/total*100):0}%;background:${col}"></div></div><div class="mood-pct">${total?Math.round(c/total*100):0}%</div></div>`).join('')+`<div class="mood-note">From ${total} reflection${total===1?'':'s'}.</div>`;
+  }else{moodEl.innerHTML='<div class="empty">no reflections yet</div>';}
+
+  // Reflection timeline
+  const tlEl=document.getElementById('p-reflections');
+  tlEl.innerHTML=reflections.length?reflections.map(r=>{const n=(r.ego_notes||'').toLowerCase();const dc=n.includes('calm')||n.includes('good')?'var(--g)':n.includes('worn')||n.includes('rough')?'var(--r)':'var(--am)';return`<div class="tl-item"><div class="tl-sp"><div class="tl-dot" style="background:${dc}"></div><div class="tl-line"></div></div><div><div class="tl-date">${new Date(r.created_at).toLocaleString()}</div><div class="tl-txt">"${esc(r.ego_notes||'')}"</div><div class="tl-tags"><span class="tag tag-r">${r.significant_count||0} significant</span><span class="tag tag-a">${r.message_count||0} messages</span></div></div></div>`;}).join(''):'<div class="empty">no reflections yet</div>';
+
+  // Significant
+  const sigEl=document.getElementById('p-sig');
+  sigEl.innerHTML=significant.length?significant.map(r=>`<div class="si-item"><div class="si-meta">${new Date(r.created_at).toLocaleString()} · ${esc(r.session_id||'?')} · ******</div><div class="si-axes">${(r.breached_axes||[]).map(a=>`<span class="ax">${a} ×${r.scores?.[a]??'?'}</span>`).join('')}</div><div class="si-q">"${esc(r.user_message||'')}"</div><div class="si-r">${esc(r.reason||'')}</div></div>`).join(''):'<div class="empty">no significant interactions yet</div>';
+}
+
+function timeAgo(iso){const diff=Math.floor((Date.now()-new Date(iso))/1000);if(diff<60)return`${diff}s ago`;if(diff<3600)return`${Math.floor(diff/60)}m ago`;return`${Math.floor(diff/3600)}h ago`;}
+function shortAddr(a){return a?`${a.slice(0,6)}...${a.slice(-4)}`:'';} 
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+load();
+setInterval(load, 15000);
+</script>
+</body>
+</html>
