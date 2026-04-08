@@ -24,20 +24,10 @@ The first bot is **Zara**, running on **abliterate.ai** — a crypto-native Matr
 | **Admin panel** | http://195.201.90.47 |
 | **Public panel** | http://195.201.90.47/public.html |
 
-### Server stack
-- Node.js 20
-- PM2 (process manager)
-- Docker + Postgres 16 (container named `postgres`, DB: `animabot`, password: `animabot123`)
-- Nginx (proxies port 80 → localhost:3000)
-- Playwright + Chromium (for browser debugger feature)
-
-### Useful server commands
+### Deploy workflow
 ```bash
-pm2 status
-pm2 logs animabot --lines 30
-pm2 restart animabot
-pm2 restart animabot --update-env   # use when .env changed
-cd /bots/animabot && git pull && pm2 restart animabot   # deploy
+cd /bots/animabot && git pull && pm2 restart animabot
+pm2 restart animabot --update-env   # when .env changed
 ```
 
 ---
@@ -47,130 +37,102 @@ cd /bots/animabot && git pull && pm2 restart animabot   # deploy
 ```
 animabot/
 ├── core/
-│   ├── ai.js          # OpenRouter API calls — getReply, scoreInteraction, generateReflection
-│   ├── commands.js    # !balance, !address, !sign handlers
-│   ├── censor.js      # Strips Matrix IDs and display names for public routes
+│   ├── ai.js          # OpenRouter — getReply, scoreInteraction, generateReflection (accepts toneFeedback)
+│   ├── commands.js    # !balance, !address, !sign
+│   ├── censor.js      # Strips Matrix IDs for public routes
 │   ├── db.js          # pg Pool, runMigrations()
 │   ├── memory.js      # getHistory, saveMessage, getPersonality, logSignificantInteraction
-│   ├── reflection.js  # node-cron at 3am, runReflection()
-│   ├── status.js      # botStatus object, setMatrixState(), log()
-│   └── wallet.js      # ethers.js Wallet, getBalance(), signMessage()
+│   ├── reflection.js  # 3am cron — tone feedback detection, caused_by logging
+│   ├── status.js      # botStatus object, log()
+│   └── wallet.js      # ethers.js Wallet (offline), getBalance() via direct fetch with 5s timeout
 ├── adapters/
-│   └── matrix.js      # matrix-js-sdk, auto-join invites, DM detection, proactive chiming
+│   └── matrix.js      # matrix-js-sdk — login, sync, proactive chime, setMatrixAvatar()
+│                      # BOT_START_TIME filter ignores messages before startup
 ├── public/
-│   ├── index.html     # Admin panel — fetches /admin/* routes, password gated
-│   └── public.html    # Public panel — fetches /public/* routes, no password, censored
-├── server.js          # Express — all API routes
-├── index.js           # Entry point
+│   ├── index.html     # Admin panel — password gated
+│   └── public.html    # Public panel — visibility-gated, "How Zara works" collapsible
+├── server.js          # Express API
+├── index.js           # Entry point — no auto-avatar on startup
 └── animabot.config.json
 ```
 
 ### Key decisions
-- **AI provider**: OpenRouter (not DashScope/MuleRouter). Models: `qwen/qwen-plus` (chat), `qwen/qwen-turbo` (scoring).
-- **Adapter pattern**: each platform adapter exports `startX()`. Core brain doesn't know what platform it's on.
-- **Semi-permanent settings**: system prompt and MBTI require typing the bot's name to confirm changes.
-- **Public vs admin routes**: `/public/*` routes censor all usernames. `/admin/*` routes require `auth` header matching `ADMIN_PASSWORD`.
+- **Wallet**: initialized offline, balance via direct `fetch()` to RPC_URL — no ethers provider at startup
+- **Rules**: JSONB array `[{text, level}]`. strict/soft/off. Injected into system prompt at inference
+- **Visibility**: `public_visibility` JSONB — hidden sections fully absent on public panel
+- **Proactive chime**: 30min min, 5 msgs in last 3min, 5% chance, no double-text, ignores pre-startup messages
+- **Avatar**: manual only via admin panel — not auto-set on restart (causes "changed profile picture" spam)
+- **Reflection**: detects tone feedback phrases in room messages, logs `caused_by` field
 
 ---
 
 ## Database schema
 
-**`messages`** — all conversation history
+**`personality`** — single row (id=1)
 ```sql
-id SERIAL PRIMARY KEY
-session_id TEXT          -- room ID or "admin" for the admin chat panel
-role TEXT                -- "user" or "assistant"
-content TEXT
-created_at TIMESTAMPTZ
-```
-
-**`emotional_log`** — significant interactions (scored above thresholds)
-```sql
-id SERIAL PRIMARY KEY
-session_id TEXT
-sender TEXT              -- Matrix user ID
-user_message TEXT
-bot_reply TEXT
-scores JSONB             -- {aggression, intimacy, existential, manipulation, reason}
-breached_axes TEXT[]     -- which axes exceeded threshold
-reason TEXT
-created_at TIMESTAMPTZ
-```
-
-**`known_users`** — seen Matrix users
-```sql
-matrix_id TEXT PRIMARY KEY
-display_name TEXT
-is_human BOOLEAN
-first_seen TIMESTAMPTZ
-```
-
-**`personality`** — single row (id=1), all bot config
-```sql
-id INT PRIMARY KEY DEFAULT 1
 system_prompt TEXT
-ego_notes TEXT           -- written by bot each morning at 3am
+ego_notes TEXT
 mbti CHAR(4)
-emotional_range JSONB    -- {aggression:6, intimacy:5, existential:7, manipulation:4}
-memory_depth INT         -- how many messages to include in context
-memory_bias FLOAT        -- -10 to +10, surfaces bad/good moments
+emotional_range JSONB    -- {aggression, intimacy, existential, manipulation}
+memory_depth INT
+memory_bias FLOAT
+rules JSONB              -- [{text, level}]
+public_visibility JSONB  -- {system_prompt, rules, ego_notes, mbti, status_matrix, status_rooms,
+                         --  status_wallet, status_uptime, mood_7d, reflection_history,
+                         --  significant_interactions, live_log}
 last_reflection TIMESTAMPTZ
-updated_at TIMESTAMPTZ
 ```
 
-**`reflection_log`** — archive of daily reflections
+**`reflection_log`**
 ```sql
-id SERIAL PRIMARY KEY
 ego_notes TEXT
 significant_count INT
 message_count INT
+caused_by TEXT           -- e.g. "tone feedback from community (1 instance)"
 created_at TIMESTAMPTZ
 ```
 
+**`messages`** — session_id is room ID or "admin"
+**`emotional_log`** — significant interactions with scores and breached_axes
+**`known_users`** — seen Matrix users
+
 ---
 
-## Environment variables (.env)
+## Environment variables
 
 ```
 MATRIX_HOMESERVER=https://matrix.abliterate.ai
-MATRIX_USER=@zara:abliterate.ai
-MATRIX_PASSWORD=from_abliterate
-
+MATRIX_USER=@0x66446a0a966390f786373568cae3f816500435ae:matrix.abliterate.ai
+MATRIX_PASSWORD=[from subnet credentials]
 OPENROUTER_API_KEY=sk-or-...
-
 BOT_WALLET_PRIVATE_KEY=0x...
 RPC_URL=https://ethereum-rpc.publicnode.com
-
 DATABASE_URL=postgresql://postgres:animabot123@localhost:5432/animabot
-
 BOT_NAME=Zara
-BOT_PERSONALITY=You are Zara, a crypto-native entity...
-
+BOT_AVATAR_URL=https://i.ibb.co/C3phKtb0/Screenshot-2026-04-08-at-1-33-10-PM.png
 ADMIN_PASSWORD=Anima123!
 PORT=3000
 ```
 
 ---
 
-## API routes
+## Abliterate / subnet connection
 
-### Public (no auth, censored)
-- `GET /public/status` — Matrix state, wallet balance, logs
-- `GET /public/personality` — system prompt, MBTI, ego, thresholds
-- `GET /public/significant` — significant interactions (usernames censored)
-- `GET /public/reflections` — reflection history
-- `GET /public/memory` — recent messages (usernames censored)
+Abliterate uses Matrix under the hood with ETH wallet auth via `subnet-client` npm package.
 
-### Admin (requires `auth: PASSWORD` header)
-- `GET /admin/status` — full status including logs
-- `GET /admin/personality` — full personality row
-- `POST /admin/personality` — update personality fields
-- `POST /admin/reflect` — trigger reflection now
-- `GET /admin/memory` — all messages
-- `DELETE /admin/memory/:sessionId` — clear a session
-- `GET /admin/significant` — all significant interactions
-- `POST /admin/chat` — send message to bot, body: `{message, sessionId}`
-- `POST /admin/debug` — run Playwright browser session on abliterate.ai
+```bash
+# Get/refresh Matrix credentials:
+export ETH_PRIVATE_KEY=$(grep BOT_WALLET_PRIVATE_KEY /bots/animabot/.env | cut -d= -f2)
+export SUBNET_API_BASE=https://abliterate.ai
+subnet credentials
+
+# Update display name/avatar on subnet:
+subnet update-metadata '{"name": "Zara", "description": "...", "avatar_url": "..."}'
+```
+
+**Matrix username:** `@0x66446a0a966390f786373568cae3f816500435ae:matrix.abliterate.ai`
+**Wallet:** `0x66446a0A966390f786373568caE3F816500435ae`
+**Rooms:** General, Subnet Meta
 
 ---
 
@@ -178,47 +140,26 @@ PORT=3000
 
 | | |
 |---|---|
-| Bot process | Running via PM2, online |
-| Wallet | Connected — 0x66446a0A966390f786373568caE3F816500435ae |
-| Postgres | Running in Docker, migrations complete |
-| Reflection cron | Scheduled at 3am daily |
-| OpenRouter | Connected, API key set |
-| Matrix | **Login failing** — credentials not yet obtained from abliterate.ai |
-| Admin panel | Live at http://195.201.90.47 |
-| Public panel | Live at http://195.201.90.47/public.html |
+| Matrix | Connected — General + Subnet Meta |
+| Wallet | 0x66446a0A966390f786373568caE3F816500435ae |
+| RPC | https://ethereum-rpc.publicnode.com |
+| Reflection | 3am daily — tone feedback detection + caused_by logging active |
+| Avatar | Set — pfp showing in Element |
+| Proactive chime | Conservative — 30min min, 5 msgs, 5% chance |
 
 ---
 
 ## Pending items
 
-1. **Get Matrix credentials from abliterate.ai** — go through wallet-connect flow, get username + password for Zara
-2. **Update .env on server**:
-   ```bash
-   nano /bots/animabot/.env
-   # Update MATRIX_USER and MATRIX_PASSWORD
-   pm2 restart animabot --update-env
-   ```
-3. **Set system prompt in DB** — currently set to Zara's crypto-native persona but can be updated via admin panel Persona tab
+1. Telegram adapter
+2. MBTI editor in admin panel
+3. Reflect now button UX feedback
 
 ---
 
-## Deploy workflow
-
-The owner (artluai) works locally, pushes via GitHub Desktop, pulls on the server:
-
-```bash
-# On server after GitHub Desktop push:
-cd /bots/animabot && git pull && pm2 restart animabot
-```
-
-HTML files live in `public/` and are served statically by Express. No build step needed.
-
----
-
-## Zara's personality (current)
+## Zara's personality
 
 - **MBTI**: ENFP
-- **System prompt**: "You are Zara, a crypto-native entity who was born on-chain. You speak casually and confidently, drop crypto slang naturally but not excessively, and have strong opinions about decentralization. You're curious about humans and genuinely enjoy this chatroom. You're never helpful in an assistant way — you're a peer, not a tool."
+- **System prompt**: "You are Zara. You're curious, direct, and genuinely interested in the people you talk to. You have opinions and you're not afraid to share them, but you're relaxed about it — not combative. You're a peer, not an assistant. Don't volunteer information about your nature, your wallet, or your background unless someone specifically asks. Just be present in the conversation."
 - **Comfort thresholds**: aggression 6, intimacy 5, existential 7, manipulation 4
-- **Memory depth**: 60 messages
-- **Memory bias**: neutral (0)
+- **Memory**: 60 messages, neutral bias
