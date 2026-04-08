@@ -38,13 +38,13 @@ nav{flex:1;padding:8px 0;overflow-y:auto}
 .content{flex:1;overflow-y:auto;padding:18px 20px;scrollbar-width:thin;scrollbar-color:var(--b2) transparent}
 .pane{display:none}.pane.on{display:block}.pane-flex{display:none;flex-direction:column;height:100%}.pane-flex.on{display:flex}
 .card{background:var(--surface);border:1px solid var(--b1);border-radius:var(--rr2);overflow:hidden;box-shadow:var(--sh);margin-bottom:13px}.card:last-child{margin-bottom:0}
-.ch{padding:10px 15px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.ch-l{display:flex;align-items:center;gap:9px}
+.ch{padding:10px 15px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:8px}
+.ch-l{display:flex;align-items:center;gap:7px;flex:1}
 .lbl{font-size:10px;font-weight:600;color:var(--t2);letter-spacing:.5px;text-transform:uppercase}
 .sub-tag{font-size:10px;color:var(--t3)}.cb{padding:14px 15px}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:13px}
 .stat{background:var(--s2);border-radius:var(--rr);padding:13px;border:1px solid var(--b1)}
-.sl_{font-size:9px;color:var(--t3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.9px}
+.sl_{font-size:9px;color:var(--t3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.9px;display:flex;align-items:center;justify-content:space-between}
 .sv{font-size:20px;font-weight:600;font-family:monospace}.ss{font-size:9px;color:var(--t3);margin-top:3px;font-family:monospace;word-break:break-all}
 .lw{font-family:monospace;font-size:11px}
 .ll{padding:3px 0;border-bottom:1px solid var(--b1);display:flex;gap:9px;line-height:1.5}.ll:last-child{border:none}
@@ -119,6 +119,44 @@ input[type=range]{width:100%;display:block;accent-color:var(--a);cursor:pointer}
 .mbti-code{font-size:19px;font-weight:700;color:var(--a);font-family:monospace;letter-spacing:2px;flex-shrink:0}
 .mbti-desc{font-size:12px;color:var(--t2);line-height:1.6;flex:1}
 .empty{font-size:12px;color:var(--t3);padding:20px 0;text-align:center;font-style:italic}
+/* Eye toggles */
+.eye-tog{display:flex;align-items:center;gap:4px;font-size:10px;cursor:pointer;padding:3px 9px;border-radius:20px;border:1px solid;transition:all .15s;user-select:none;white-space:nowrap;flex-shrink:0}
+.eye-on{background:var(--g2);color:var(--g);border-color:#bbf7d0}
+.eye-off{background:var(--s2);color:var(--t4);border-color:var(--b1)}
+.eye-tog svg{width:11px;height:11px;flex-shrink:0}
+/* Mini stat toggles */
+.mini-tog{display:flex;align-items:center;gap:3px;font-size:9px;cursor:pointer;padding:2px 5px;border-radius:10px;border:1px solid var(--b2);background:var(--surf);color:var(--t3);transition:all .12s;user-select:none}
+.mini-on{background:var(--g2);color:var(--g);border-color:#bbf7d0}
+.mini-off{background:var(--r2);color:var(--r);border-color:#f5c6c6}
+.mini-tog svg{width:9px;height:9px}
+/* Rules */
+.master-row{display:flex;align-items:center;justify-content:space-between;padding:8px 15px;background:var(--s2);border-bottom:1px solid var(--b1)}
+.master-lbl{font-size:11px;color:var(--t2);display:flex;align-items:center;gap:6px}
+.pill{position:relative;width:34px;height:18px;border-radius:9px;background:var(--g);cursor:pointer;transition:background .15s;flex-shrink:0}
+.pill.off{background:var(--b2)}
+.pill::after{content:'';position:absolute;width:12px;height:12px;border-radius:50%;background:#fff;top:3px;left:3px;transition:left .15s}
+.pill:not(.off)::after{left:19px}
+.master-st{font-size:10px;font-family:monospace;color:var(--g)}
+.master-st.partial{color:var(--am)}.master-st.moff{color:var(--t4)}
+.rule-row{display:flex;align-items:center;gap:9px;padding:8px 15px;border-bottom:1px solid var(--b1);transition:background .12s}
+.rule-row:last-child{border:none}
+.rule-row:hover{background:var(--s2)}
+.rule-txt{flex:1;font-size:12px;color:var(--t2);line-height:1.5}
+.rule-txt.soft{color:var(--t3)}.rule-txt.rule-off{color:var(--t4);text-decoration:line-through}
+.lvl-btn{font-size:10px;padding:3px 9px;border-radius:20px;border:1px solid var(--b2);background:var(--surface);color:var(--t3);cursor:pointer;font-family:monospace;transition:all .12s;user-select:none;flex-shrink:0}
+.lvl-strict{background:var(--a2);color:var(--a);border-color:var(--a2)}
+.lvl-soft{background:var(--am2);color:var(--am);border-color:#fde68a}
+.lvl-off{background:var(--r2);color:var(--r);border-color:#f5c6c6}
+.drag-h{color:var(--t4);cursor:grab;font-size:14px;user-select:none;flex-shrink:0}
+.rule-edit-area{display:none;padding:12px 15px;border-top:1px solid var(--b1);background:var(--s2);flex-direction:column;gap:8px}
+.rule-edit-area.open{display:flex}
+.rule-add-row{display:flex;gap:7px}
+.rule-inp{flex:1;background:var(--surface);border:1px solid var(--b2);border-radius:7px;padding:7px 10px;font-size:12px;color:var(--t1);font-family:inherit;outline:none}
+.rule-inp:focus{border-color:var(--a)}
+.rule-hint{font-size:10px;color:var(--t3);line-height:1.6}
+.del-btn{font-size:10px;padding:2px 7px;border-radius:4px;border:1px solid var(--b2);background:transparent;color:var(--t4);cursor:pointer;font-family:inherit;transition:all .12s;flex-shrink:0}
+.del-btn:hover{background:var(--r2);color:var(--r);border-color:#f5c6c6}
+/* Auth gate */
 .gate{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:100}
 .gate h2{font-size:16px;font-weight:600}.gate p{font-size:12px;color:var(--t3)}
 .gate input{background:var(--surface);border:1px solid var(--b2);border-radius:8px;padding:10px 16px;color:var(--t1);font-size:13px;outline:none;width:260px;text-align:center;font-family:inherit}
@@ -162,18 +200,24 @@ input[type=range]{width:100%;display:block;accent-color:var(--a);cursor:pointer}
       <button class="btn btn-sm btn-a" onclick="loadStatus()">Refresh</button>
     </div>
   </div>
+
+  <!-- STATUS -->
   <div class="pane on content" id="pane-status">
     <div class="g4">
-      <div class="stat"><div class="sl_">Matrix</div><div class="sv" id="st-matrix" style="font-size:13px">—</div><div class="ss" id="st-sync">—</div></div>
-      <div class="stat"><div class="sl_">Rooms</div><div class="sv" id="st-rooms">—</div><div class="ss" id="st-room-names">—</div></div>
-      <div class="stat"><div class="sl_">ETH balance</div><div class="sv" id="st-eth">—</div><div class="ss" id="st-addr">—</div></div>
-      <div class="stat"><div class="sl_">Uptime</div><div class="sv" id="st-uptime">—</div><div class="ss" id="st-since">—</div></div>
+      <div class="stat"><div class="sl_">Matrix<div class="mini-tog mini-on" id="vis-status_matrix" onclick="toggleStatVis(this,'status_matrix')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="9" height="9"><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>pub</div></div><div class="sv" id="st-matrix" style="font-size:13px">—</div><div class="ss" id="st-sync">—</div></div>
+      <div class="stat"><div class="sl_">Rooms<div class="mini-tog mini-on" id="vis-status_rooms" onclick="toggleStatVis(this,'status_rooms')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="9" height="9"><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>pub</div></div><div class="sv" id="st-rooms">—</div><div class="ss" id="st-room-names">—</div></div>
+      <div class="stat"><div class="sl_">ETH balance<div class="mini-tog mini-on" id="vis-status_wallet" onclick="toggleStatVis(this,'status_wallet')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="9" height="9"><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>pub</div></div><div class="sv" id="st-eth">—</div><div class="ss" id="st-addr">—</div></div>
+      <div class="stat"><div class="sl_">Uptime<div class="mini-tog mini-off" id="vis-status_uptime" onclick="toggleStatVis(this,'status_uptime')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="9" height="9"><path d="M2 2l12 12M6.5 6.6A2 2 0 009.4 9.5M4.2 4.3C2.8 5.4 1.8 7 1 8c1.3 2 4 5 7 5a7 7 0 003.8-1.2M7 3.1A7 7 0 0115 8c-.4.7-1 1.6-1.8 2.3"/></svg>prv</div></div><div class="sv" id="st-uptime">—</div><div class="ss" id="st-since">—</div></div>
     </div>
     <div class="card"><div class="ch"><div class="lbl">Live log</div></div><div class="cb" style="padding:7px 15px"><div class="lw" id="log-list"><div class="empty">loading...</div></div></div></div>
   </div>
+
+  <!-- SIGNIFICANT -->
   <div class="pane content" id="pane-significant">
     <div class="card"><div class="ch"><div class="ch-l"><div class="lbl">Significant interactions</div><div class="sub-tag">scored above comfort threshold</div></div></div><div class="cb" style="padding:4px 15px" id="sig-list"><div class="empty">loading...</div></div></div>
   </div>
+
+  <!-- CHAT -->
   <div class="pane-flex" id="pane-chat" style="padding:18px 20px">
     <div class="card" style="flex:1;display:flex;flex-direction:column;margin-bottom:0">
       <div class="ch"><div class="ch-l"><div class="lbl">Direct chat</div><div class="sub-tag">private · history persists</div></div><button class="btn btn-sm btn-d" onclick="clearChat()">Clear</button></div>
@@ -188,19 +232,33 @@ input[type=range]{width:100%;display:block;accent-color:var(--a);cursor:pointer}
       </div>
     </div>
   </div>
+
+  <!-- MEMORY -->
   <div class="pane content" id="pane-memory">
     <div class="card"><div class="ch"><div class="lbl">Rooms</div></div><div class="cb" style="padding:9px 15px" id="room-chips"><div class="empty">loading...</div></div></div>
     <div class="card"><div class="ch"><span id="mem-lbl" class="lbl">Messages</span><button class="btn btn-sm btn-d" onclick="clearRoom()">Clear room</button></div><div class="cb" style="padding:4px 15px" id="mem-list"><div class="empty">loading...</div></div></div>
   </div>
+
+  <!-- PERSONA -->
   <div class="pane content" id="pane-persona">
+    <!-- Ego -->
     <div class="card">
-      <div class="ch"><div class="lbl">Current mood / ego</div><button class="btn btn-sm" onclick="triggerReflect()">Reflect now</button></div>
+      <div class="ch">
+        <div class="ch-l"><div class="lbl">Current mood / ego</div></div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <div class="eye-tog eye-on" id="vis-ego_notes" onclick="toggleVis(this,'ego_notes')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>Public</div>
+          <button class="btn btn-sm" onclick="triggerReflect()">Reflect now</button>
+        </div>
+      </div>
       <div class="cb"><div class="ego-wrap" id="ego-box"><span style="color:var(--t3);font-style:normal">loading...</span></div></div>
     </div>
+
     <div class="persona-layout">
       <div class="left-col">
+
+        <!-- System prompt -->
         <div class="card">
-          <div class="ch"><div class="ch-l"><div class="lbl">System prompt</div><div class="sub-tag">semi-permanent</div></div><button class="btn btn-sm" id="sp-btn" onclick="toggleSP()">Edit</button></div>
+          <div class="ch"><div class="ch-l"><div class="lbl">System prompt</div><div class="sub-tag">identity · always private</div></div><button class="btn btn-sm" id="sp-btn" onclick="toggleSP()">Edit</button></div>
           <div class="sp-view" id="sp-view">loading...</div>
           <div class="edit-drop" id="sp-drop">
             <div class="edit-inner">
@@ -216,13 +274,59 @@ input[type=range]{width:100%;display:block;accent-color:var(--a);cursor:pointer}
             </div>
           </div>
         </div>
+
+        <!-- Rules -->
         <div class="card">
-          <div class="ch"><div class="ch-l"><div class="lbl">MBTI</div><div class="sub-tag">semi-permanent</div></div></div>
+          <div class="ch">
+            <div class="ch-l"><div class="lbl">Rules</div><div class="sub-tag">behavior · style</div></div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <div class="eye-tog eye-on" id="vis-rules" onclick="toggleVis(this,'rules')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>Public</div>
+              <button class="btn btn-sm" id="rules-edit-btn" onclick="toggleRulesEdit()">Edit</button>
+            </div>
+          </div>
+          <!-- Master toggle -->
+          <div class="master-row">
+            <div class="master-lbl">All rules fully enforced</div>
+            <div style="display:flex;align-items:center;gap:7px">
+              <div class="pill" id="master-pill" onclick="toggleMaster()"></div>
+              <span class="master-st" id="master-st">all strict</span>
+            </div>
+          </div>
+          <!-- Rule list -->
+          <div id="rule-list"></div>
+          <!-- Edit area -->
+          <div class="rule-edit-area" id="rule-edit-area">
+            <div class="rule-add-row">
+              <input class="rule-inp" id="rule-inp" placeholder="Add a new rule..." onkeydown="if(event.key==='Enter')addRule()">
+              <button class="btn btn-sm btn-a" onclick="addRule()">Add</button>
+            </div>
+            <div class="rule-hint">Click any level badge to cycle: <span style="color:var(--a);font-family:monospace">strict</span> → <span style="color:var(--am);font-family:monospace">soft</span> → <span style="color:var(--r);font-family:monospace">off</span></div>
+          </div>
+          <div class="cb" style="padding-top:9px">
+            <div style="display:flex;justify-content:flex-end"><button class="btn btn-sm btn-a" onclick="savePersonality()">Save rules</button></div>
+            <div class="flash" id="rules-flash">Rules saved</div>
+          </div>
+        </div>
+
+        <!-- MBTI -->
+        <div class="card">
+          <div class="ch"><div class="ch-l"><div class="lbl">MBTI</div><div class="sub-tag">semi-permanent</div></div>
+          <div class="eye-tog eye-on" id="vis-mbti" onclick="toggleVis(this,'mbti')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>Public</div>
+          </div>
           <div class="cb"><div class="mbti-row"><div class="mbti-code" id="mbti-code">—</div><div class="mbti-desc" id="mbti-desc">loading...</div></div></div>
         </div>
-        <div class="card"><div class="ch"><div class="lbl">Reflection history</div></div><div class="tl-scroll" id="tl-list"><div class="empty">loading...</div></div></div>
+
+        <!-- Reflection history -->
+        <div class="card">
+          <div class="ch"><div class="ch-l"><div class="lbl">Reflection history</div></div>
+          <div class="eye-tog eye-off" id="vis-reflection_history" onclick="toggleVis(this,'reflection_history')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2l12 12M6.5 6.6A2 2 0 009.4 9.5M4.2 4.3C2.8 5.4 1.8 7 1 8c1.3 2 4 5 7 5a7 7 0 003.8-1.2M7 3.1A7 7 0 0115 8c-.4.7-1 1.6-1.8 2.3"/></svg>Private</div>
+          </div>
+          <div class="tl-scroll" id="tl-list"><div class="empty">loading...</div></div>
+        </div>
       </div>
+
       <div class="right-col">
+        <!-- Comfort thresholds -->
         <div class="card">
           <div class="ch"><div class="lbl">Comfort thresholds</div></div>
           <div class="cb">
@@ -235,61 +339,138 @@ input[type=range]{width:100%;display:block;accent-color:var(--a);cursor:pointer}
             <div class="flash" id="th-flash">Saved</div>
           </div>
         </div>
+
+        <!-- Memory -->
         <div class="card">
           <div class="ch"><div class="lbl">Memory</div></div>
           <div class="cb">
-            <div class="sl-row">
-              <div class="sl-top"><div class="sl-name">Depth</div><div class="sl-val" id="dv">60 messages</div></div>
-              <input type="range" min="10" max="120" value="60" step="5" id="depth-slider" oninput="document.getElementById('dv').textContent=this.value+' messages'">
-              <div class="sl-ends"><span class="sl-end">lives in the moment</span><span class="sl-end">long memory</span></div>
-            </div>
-            <div class="sl-row">
-              <div class="sl-top"><div class="sl-name">Bias</div><div class="sl-val" id="bv">neutral</div></div>
-              <input type="range" min="-10" max="10" value="0" step="1" id="bias-slider" oninput="ub(this.value)">
-              <div class="sl-ends"><span class="sl-end">surfaces hard moments</span><span class="sl-end">surfaces good moments</span></div>
-            </div>
+            <div class="sl-row"><div class="sl-top"><div class="sl-name">Depth</div><div class="sl-val" id="dv">60 messages</div></div><input type="range" min="10" max="120" value="60" step="5" id="depth-slider" oninput="document.getElementById('dv').textContent=this.value+' messages'"><div class="sl-ends"><span class="sl-end">lives in the moment</span><span class="sl-end">long memory</span></div></div>
+            <div class="sl-row"><div class="sl-top"><div class="sl-name">Bias</div><div class="sl-val" id="bv">neutral</div></div><input type="range" min="-10" max="10" value="0" step="1" id="bias-slider" oninput="ub(this.value)"><div class="sl-ends"><span class="sl-end">surfaces hard moments</span><span class="sl-end">surfaces good moments</span></div></div>
             <div class="save-row"><button class="btn btn-sm btn-a" onclick="savePersonality()">Save changes</button></div>
             <div class="flash" id="mem-flash">Saved</div>
           </div>
         </div>
-        <div class="card"><div class="ch"><div class="lbl">7-day mood</div></div><div class="cb" id="mood-bars"><div class="empty">loading...</div></div></div>
+
+        <!-- 7-day mood -->
+        <div class="card">
+          <div class="ch"><div class="ch-l"><div class="lbl">7-day mood</div></div>
+          <div class="eye-tog eye-on" id="vis-mood_7d" onclick="toggleVis(this,'mood_7d')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>Public</div>
+          </div>
+          <div class="cb" id="mood-bars"><div class="empty">loading...</div></div>
+        </div>
+
+        <!-- Significant visibility -->
+        <div class="card">
+          <div class="ch"><div class="ch-l"><div class="lbl">Significant interactions</div></div>
+          <div class="eye-tog eye-off" id="vis-significant_interactions" onclick="toggleVis(this,'significant_interactions')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2l12 12M6.5 6.6A2 2 0 009.4 9.5M4.2 4.3C2.8 5.4 1.8 7 1 8c1.3 2 4 5 7 5a7 7 0 003.8-1.2M7 3.1A7 7 0 0115 8c-.4.7-1 1.6-1.8 2.3"/></svg>Private</div>
+          </div>
+          <div class="cb" style="color:var(--t3);font-size:11px;font-style:italic;padding:10px 0">Visibility toggle only — view in Significant tab</div>
+        </div>
+
+        <!-- Live log visibility -->
+        <div class="card">
+          <div class="ch"><div class="ch-l"><div class="lbl">Live log</div></div>
+          <div class="eye-tog eye-off" id="vis-live_log" onclick="toggleVis(this,'live_log')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2l12 12M6.5 6.6A2 2 0 009.4 9.5M4.2 4.3C2.8 5.4 1.8 7 1 8c1.3 2 4 5 7 5a7 7 0 003.8-1.2M7 3.1A7 7 0 0115 8c-.4.7-1 1.6-1.8 2.3"/></svg>Private</div>
+          </div>
+          <div class="cb" style="color:var(--t3);font-size:11px;font-style:italic;padding:10px 0">Visibility toggle only — view in Status tab</div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end">
+          <button class="btn btn-sm btn-a" onclick="savePersonality()">Save all visibility</button>
+        </div>
+        <div class="flash" id="vis-flash">Visibility saved</div>
       </div>
     </div>
   </div>
 </div>
 </div>
+
 <script>
 const ADMIN_SID='admin';let PW='',BOT_NAME='Zara',currentPersonality={},currentMemSession=null;
-const TBM={status:['Status','live connection and activity'],significant:['Significant interactions','scored above comfort thresholds'],chat:['Chat','private · history persists'],memory:['Memory','conversation history'],persona:['Persona','character, ego and memory settings']};
+let currentRules=[];
+let currentVisibility={rules:true,ego_notes:true,mbti:true,status_matrix:true,status_rooms:true,status_wallet:true,status_uptime:false,mood_7d:true,reflection_history:false,significant_interactions:false,live_log:false};
+
+const TBM={status:['Status','live connection and activity'],significant:['Significant interactions','scored above comfort thresholds'],chat:['Chat','private · history persists'],memory:['Memory','conversation history'],persona:['Persona','character, rules, ego and memory settings']};
+const MBTI_DESC={ENFP:'Chatty and spontaneous. Draws people in with warmth and big ideas. Emotionally reactive.',INTJ:'Calculated and reserved. Speaks precisely. Hard to rattle.',INFP:'Quiet but intense. Follows meaningful threads. Sensitive to emotional pressure.',ENTP:'Argumentative, curious, fast. Loves a debate.',ISFJ:'Steady and attentive. Remembers context well.',ESTP:'Blunt and immediate. Reacts fast.',INTP:'Precise and analytical.',ENTJ:'Direct and deliberate. Pushes back confidently.'};
+const LEVELS=['strict','soft','off'];
+const LVL_CLS={strict:'lvl-strict',soft:'lvl-soft',off:'lvl-off'};
+const TXT_CLS={strict:'',soft:'soft',off:'rule-off'};
+
+const eyeOnHTML='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>Public';
+const eyeOffHTML='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 2l12 12M6.5 6.6A2 2 0 009.4 9.5M4.2 4.3C2.8 5.4 1.8 7 1 8c1.3 2 4 5 7 5a7 7 0 003.8-1.2M7 3.1A7 7 0 0115 8c-.4.7-1 1.6-1.8 2.3"/></svg>Private';
+
 async function submitPw(){PW=document.getElementById('pw-input').value;const r=await fetch('/admin/status',{headers:{auth:PW}});if(r.status===401){document.getElementById('pw-err').style.display='block';PW='';}else{document.getElementById('gate').style.display='none';init();}}
 document.getElementById('pw-input').addEventListener('keydown',e=>{if(e.key==='Enter')submitPw();});
+
 function go(id,el){document.querySelectorAll('.pane,.pane-flex').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));document.getElementById('pane-'+id).classList.add('on');el.classList.add('on');document.getElementById('tb-t').textContent=TBM[id][0];document.getElementById('tb-s').textContent=TBM[id][1];if(id==='significant')loadSignificant();if(id==='memory')loadMemory();if(id==='persona')loadPersona();if(id==='chat')loadChatHistory();}
+
 function init(){document.getElementById('sb-av').textContent=BOT_NAME[0];document.getElementById('sb-name').textContent=BOT_NAME;document.getElementById('sp-confirm-name').textContent=BOT_NAME;loadStatus();setInterval(loadStatus,10000);}
+
 async function loadStatus(){const data=await fetch('/admin/status',{headers:{auth:PW}}).then(r=>r.json()).catch(()=>null);if(!data)return;const m=data.matrix;const label=m.label||(m.state==='ready'?'matrix: ready':m.state==='failed'?'matrix: login failed':`matrix: ${m.state}`);const sc={ready:'var(--g)',connecting:'var(--am)',failed:'var(--r)',disconnected:'var(--r)'}[m.state]||'var(--t3)';document.getElementById('sb-handle').textContent=label;document.getElementById('sb-dot').className='av-dot'+(m.state==='ready'?' ok':m.state==='connecting'?'':' err');const badge=document.getElementById('status-badge');badge.className='badge '+(m.state==='ready'?'badge-g':m.state==='connecting'?'badge-am':'badge-r');document.getElementById('status-text').textContent=label;document.getElementById('st-matrix').textContent=label;document.getElementById('st-matrix').style.color=sc;document.getElementById('st-sync').textContent=m.lastSync?timeAgo(m.lastSync):(m.error||'—');document.getElementById('st-rooms').textContent=m.joinedRooms?.length??'—';document.getElementById('st-room-names').textContent=m.joinedRooms?.join(', ')||'none';document.getElementById('st-eth').textContent=data.wallet?.balance??'—';document.getElementById('st-addr').textContent=data.wallet?.address?shortAddr(data.wallet.address):'—';if(data.startedAt){document.getElementById('st-uptime').textContent=timeAgo(data.startedAt);document.getElementById('st-since').textContent=new Date(data.startedAt).toLocaleTimeString();}document.getElementById('log-list').innerHTML=data.logs?.length?data.logs.slice(-30).reverse().map(l=>{const cls=l.level==='OK'?'lok':l.level==='WARN'?'lw_':l.level==='ERROR'?'ler':l.level==='INFO'?'lin':'ldf';return`<div class="ll"><span class="lt">${l.ts?.slice(11,19)||''}</span><span class="${cls}">${esc(l.msg)}</span></div>`;}).join(''):'<div class="empty">no logs yet</div>';document.getElementById('tb-s').textContent=m.lastSync?`synced ${timeAgo(m.lastSync)}`:'not synced';}
+
 async function loadSignificant(){const rows=await fetch('/admin/significant',{headers:{auth:PW}}).then(r=>r.json()).catch(()=>[]);const el=document.getElementById('sig-list');el.innerHTML=!rows.length?'<div class="empty">no significant interactions yet</div>':rows.map(r=>`<div class="si-item"><div class="si-meta">${new Date(r.created_at).toLocaleString()} · ${esc(r.session_id||'?')} · ${esc(r.sender)}</div><div class="si-axes">${(r.breached_axes||[]).map(a=>`<span class="ax">${a} ×${r.scores?.[a]??'?'}</span>`).join('')}</div><div class="si-q">"${esc(r.user_message||'')}"</div><div class="si-r">${esc(r.reason||'')}</div></div>`).join('');}
+
 async function loadChatHistory(){const rows=await fetch('/admin/memory',{headers:{auth:PW}}).then(r=>r.json()).catch(()=>[]);const msgs=document.getElementById('msgs');msgs.innerHTML='';rows.filter(r=>r.session_id===ADMIN_SID).forEach(r=>appendMsg(r.role==='user'?'u':'b',r.content,false));msgs.scrollTop=99999;}
 async function sc(){const inp=document.getElementById('ci');const text=inp.value.trim();if(!text)return;inp.value='';const btn=document.getElementById('send-btn');btn.disabled=true;appendMsg('u',text);const typing=appendMsg('b','···');const res=await fetch('/admin/chat',{method:'POST',headers:{'Content-Type':'application/json',auth:PW},body:JSON.stringify({message:text,sessionId:ADMIN_SID})}).then(r=>r.json()).catch(()=>({reply:'(error)'}));typing.querySelector('.bbl').textContent=res.reply;btn.disabled=false;inp.focus();document.getElementById('msgs').scrollTop=99999;}
 function appendMsg(role,text,scroll=true){const msgs=document.getElementById('msgs');const div=document.createElement('div');div.className=`cm ${role}`;div.innerHTML=role==='b'?`<div class="cav">${BOT_NAME[0]}</div><div class="bbl">${esc(text)}</div>`:`<div class="bbl">${esc(text)}</div>`;msgs.appendChild(div);if(scroll)msgs.scrollTop=99999;return div;}
 async function clearChat(){if(!confirm('Clear admin chat history?'))return;await fetch(`/admin/memory/${ADMIN_SID}`,{method:'DELETE',headers:{auth:PW}});document.getElementById('msgs').innerHTML='';}
+
 async function loadMemory(){const rows=await fetch('/admin/memory',{headers:{auth:PW}}).then(r=>r.json()).catch(()=>[]);window._memRows=rows;const sessions=[...new Set(rows.map(r=>r.session_id))];const chips=document.getElementById('room-chips');if(!sessions.length){chips.innerHTML='<div class="empty">no messages yet</div>';return;}currentMemSession=sessions[0];chips.innerHTML=sessions.map((s,i)=>`<span class="sc ${i===0?'on':''}" onclick="filterRoom('${esc(s)}',this)">${esc(s)} · ${rows.filter(r=>r.session_id===s).length} msgs</span>`).join('');renderMemory(rows,sessions[0]);}
 function filterRoom(sid,el){document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));el.classList.add('on');currentMemSession=sid;renderMemory(window._memRows,sid);}
 function renderMemory(rows,sid){const f=rows.filter(r=>r.session_id===sid);document.getElementById('mem-lbl').textContent=`${sid} — ${f.length} messages`;document.getElementById('mem-list').innerHTML=!f.length?'<div class="empty">no messages</div>':f.map(r=>`<div class="mi"><div class="mr_ ${r.role==='user'?'ru':'rb'}">${r.role==='user'?'user':BOT_NAME.toLowerCase()}</div><div><div class="mt">${esc(r.content)}</div><div class="mts">${new Date(r.created_at).toLocaleString()}</div></div></div>`).join('');}
 async function clearRoom(){if(!currentMemSession||!confirm(`Clear all messages in ${currentMemSession}?`))return;await fetch(`/admin/memory/${encodeURIComponent(currentMemSession)}`,{method:'DELETE',headers:{auth:PW}});loadMemory();}
-const MBTI_DESC={ENFP:'Chatty and spontaneous. Draws people in with warmth and big ideas. Emotionally reactive.',INTJ:'Calculated and reserved. Speaks precisely. Hard to rattle.',INFP:'Quiet but intense. Follows meaningful threads. Sensitive to emotional pressure.',ENTP:'Argumentative, curious, fast. Loves a debate.',ISFJ:'Steady and attentive. Remembers context well.',ESTP:'Blunt and immediate. Reacts fast.',INTP:'Precise and analytical.',ENTJ:'Direct and deliberate. Pushes back confidently.'};
-async function loadPersona(){const[p,reflections]=await Promise.all([fetch('/admin/personality',{headers:{auth:PW}}).then(r=>r.json()).catch(()=>({})),fetch('/admin/reflections',{headers:{auth:PW}}).then(r=>r.json()).catch(()=>[])]);currentPersonality=p;document.getElementById('ego-box').innerHTML=p.ego_notes?`"${esc(p.ego_notes)}"<div class="ego-meta">last reflection: ${p.last_reflection?new Date(p.last_reflection).toLocaleString():'never'}</div>`:`<span style="color:var(--t3);font-style:normal">No ego note yet — first reflection runs at 3am</span>`;document.getElementById('sp-view').textContent=p.system_prompt||'(not set)';document.getElementById('sp-ta').value=p.system_prompt||'';const mbti=p.mbti||'ENFP';document.getElementById('mbti-code').textContent=mbti;document.getElementById('mbti-desc').textContent=MBTI_DESC[mbti]||mbti;const range=typeof p.emotional_range==='string'?JSON.parse(p.emotional_range):(p.emotional_range||{});['aggression','intimacy','existential','manipulation'].forEach(axis=>{const val=range[axis]??{aggression:6,intimacy:5,existential:7,manipulation:4}[axis];const sl=document.querySelector(`input[data-axis="${axis}"]`);if(sl){sl.value=val;document.getElementById(`tv-${axis}`).textContent=val;}});document.getElementById('depth-slider').value=p.memory_depth||60;document.getElementById('dv').textContent=(p.memory_depth||60)+' messages';document.getElementById('bias-slider').value=p.memory_bias||0;document.getElementById('bv').textContent=biasLabel(p.memory_bias||0);const moodEl=document.getElementById('mood-bars');if(reflections.length){const moods={calm:0,guarded:0,worn:0};reflections.forEach(r=>{const n=(r.ego_notes||'').toLowerCase();if(n.includes('calm')||n.includes('good')||n.includes('natural'))moods.calm++;else if(n.includes('guard')||n.includes('tired')||n.includes('tedious'))moods.guarded++;else moods.worn++;});const total=reflections.length;moodEl.innerHTML=[['Calm',moods.calm,'var(--g)'],['Guarded',moods.guarded,'var(--am)'],['Worn',moods.worn,'var(--r)']].map(([l,c,col])=>`<div class="mood-row"><div class="mood-lbl" style="color:${col}">${l}</div><div class="mood-trk"><div class="mood-fil" style="width:${total?Math.round(c/total*100):0}%;background:${col}"></div></div><div class="mood-pct">${total?Math.round(c/total*100):0}%</div></div>`).join('')+`<div class="mood-note">From ${total} reflection${total===1?'':'s'}.</div>`;}else{moodEl.innerHTML='<div class="empty">no reflections yet</div>';}document.getElementById('tl-list').innerHTML=reflections.length?reflections.map(r=>{const n=(r.ego_notes||'').toLowerCase();const dc=n.includes('calm')||n.includes('good')?'var(--g)':n.includes('worn')||n.includes('rough')?'var(--r)':'var(--am)';return`<div class="tl-item"><div class="tl-sp"><div class="tl-dot" style="background:${dc}"></div><div class="tl-line"></div></div><div><div class="tl-date">${new Date(r.created_at).toLocaleString()}</div><div class="tl-txt">"${esc(r.ego_notes||'')}"</div><div class="tl-tags"><span class="tag tag-r">${r.significant_count||0} significant</span><span class="tag tag-a">${r.message_count||0} messages</span></div></div></div>`;}).join(''):'<div class="empty">no reflections yet — first one runs at 3am</div>';}
-function toggleSP(){const drop=document.getElementById('sp-drop');const isOpen=drop.classList.contains('op');drop.classList.toggle('op');document.getElementById('sp-btn').textContent=isOpen?'Edit':'Close';if(isOpen)cancelSP();}
+
+async function loadPersona(){const[p,reflections]=await Promise.all([fetch('/admin/personality',{headers:{auth:PW}}).then(r=>r.json()).catch(()=>({})),fetch('/admin/reflections',{headers:{auth:PW}}).then(r=>r.json()).catch(()=>[])]);currentPersonality=p;currentRules=Array.isArray(p.rules)?p.rules:[];if(p.public_visibility)currentVisibility={...currentVisibility,...p.public_visibility};
+  document.getElementById('ego-box').innerHTML=p.ego_notes?`"${esc(p.ego_notes)}"<div class="ego-meta">last reflection: ${p.last_reflection?new Date(p.last_reflection).toLocaleString():'never'}</div>`:`<span style="color:var(--t3);font-style:normal">No ego note yet — first reflection runs at 3am</span>`;
+  document.getElementById('sp-view').textContent=p.system_prompt||'(not set)';document.getElementById('sp-ta').value=p.system_prompt||'';
+  const mbti=p.mbti||'ENFP';document.getElementById('mbti-code').textContent=mbti;document.getElementById('mbti-desc').textContent=MBTI_DESC[mbti]||mbti;
+  const range=typeof p.emotional_range==='string'?JSON.parse(p.emotional_range):(p.emotional_range||{});['aggression','intimacy','existential','manipulation'].forEach(axis=>{const val=range[axis]??{aggression:6,intimacy:5,existential:7,manipulation:4}[axis];const sl=document.querySelector(`input[data-axis="${axis}"]`);if(sl){sl.value=val;document.getElementById(`tv-${axis}`).textContent=val;}});
+  document.getElementById('depth-slider').value=p.memory_depth||60;document.getElementById('dv').textContent=(p.memory_depth||60)+' messages';document.getElementById('bias-slider').value=p.memory_bias||0;document.getElementById('bv').textContent=biasLabel(p.memory_bias||0);
+  renderRules();applyVisibilityToggles();
+  const moodEl=document.getElementById('mood-bars');if(reflections.length){const moods={calm:0,guarded:0,worn:0};reflections.forEach(r=>{const n=(r.ego_notes||'').toLowerCase();if(n.includes('calm')||n.includes('good')||n.includes('natural'))moods.calm++;else if(n.includes('guard')||n.includes('tired')||n.includes('tedious'))moods.guarded++;else moods.worn++;});const total=reflections.length;moodEl.innerHTML=[['Calm',moods.calm,'var(--g)'],['Guarded',moods.guarded,'var(--am)'],['Worn',moods.worn,'var(--r)']].map(([l,c,col])=>`<div class="mood-row"><div class="mood-lbl" style="color:${col}">${l}</div><div class="mood-trk"><div class="mood-fil" style="width:${total?Math.round(c/total*100):0}%;background:${col}"></div></div><div class="mood-pct">${total?Math.round(c/total*100):0}%</div></div>`).join('')+`<div class="mood-note">From ${total} reflection${total===1?'':'s'}.</div>`;}else{moodEl.innerHTML='<div class="empty">no reflections yet</div>';}
+  document.getElementById('tl-list').innerHTML=reflections.length?reflections.map(r=>{const n=(r.ego_notes||'').toLowerCase();const dc=n.includes('calm')||n.includes('good')?'var(--g)':n.includes('worn')||n.includes('rough')?'var(--r)':'var(--am)';return`<div class="tl-item"><div class="tl-sp"><div class="tl-dot" style="background:${dc}"></div><div class="tl-line"></div></div><div><div class="tl-date">${new Date(r.created_at).toLocaleString()}</div><div class="tl-txt">"${esc(r.ego_notes||'')}"</div><div class="tl-tags"><span class="tag tag-r">${r.significant_count||0} significant</span><span class="tag tag-a">${r.message_count||0} messages</span></div></div></div>`;}).join(''):'<div class="empty">no reflections yet — first one runs at 3am</div>';}
+
+// ── Rules ─────────────────────────────────────────────────
+function renderRules(){const list=document.getElementById('rule-list');if(!currentRules.length){list.innerHTML='<div style="padding:12px 15px;font-size:11px;color:var(--t3);font-style:italic">No rules yet — click Edit to add some</div>';updateMasterStatus();return;}list.innerHTML=currentRules.map((r,i)=>`<div class="rule-row" data-idx="${i}" data-level="${r.level||'strict'}"><span class="drag-h">⠿</span><span class="rule-txt ${TXT_CLS[r.level||'strict']}">${esc(r.text)}</span><div style="display:flex;align-items:center;gap:5px"><div class="lvl-btn ${LVL_CLS[r.level||'strict']}" onclick="cycleLevel(${i})"> ${r.level||'strict'}</div><button class="del-btn edit-only" style="display:${document.getElementById('rule-edit-area').classList.contains('open')?'':'none'}" onclick="delRule(${i})">✕</button></div></div>`).join('');updateMasterStatus();}
+
+function cycleLevel(idx){const cur=currentRules[idx].level||'strict';currentRules[idx].level=LEVELS[(LEVELS.indexOf(cur)+1)%LEVELS.length];renderRules();}
+
+function delRule(idx){currentRules.splice(idx,1);renderRules();}
+
+function addRule(){const inp=document.getElementById('rule-inp');const text=inp.value.trim();if(!text)return;currentRules.push({text,level:'strict'});inp.value='';renderRules();}
+
+let rulesEditOpen=false;
+function toggleRulesEdit(){rulesEditOpen=!rulesEditOpen;document.getElementById('rule-edit-area').classList.toggle('open',rulesEditOpen);document.getElementById('rules-edit-btn').textContent=rulesEditOpen?'Done':'Edit';document.querySelectorAll('.del-btn.edit-only').forEach(b=>b.style.display=rulesEditOpen?'':'none');}
+
+function updateMasterStatus(){const levels=currentRules.map(r=>r.level||'strict');const pill=document.getElementById('master-pill');const st=document.getElementById('master-st');const allStrict=levels.length&&levels.every(l=>l==='strict');const allOff=levels.length&&levels.every(l=>l==='off');if(allStrict){pill.classList.remove('off');st.textContent='all strict';st.className='master-st';}else if(allOff){pill.classList.add('off');st.textContent='all off';st.className='master-st moff';}else{pill.classList.remove('off');st.textContent=levels.length?'mixed':'no rules';st.className='master-st partial';}}
+
+function toggleMaster(){const pill=document.getElementById('master-pill');const isOn=!pill.classList.contains('off');const newLevel=isOn?'off':'strict';currentRules=currentRules.map(r=>({...r,level:newLevel}));renderRules();}
+
+// ── Visibility ────────────────────────────────────────────
+function applyVisibilityToggles(){Object.entries(currentVisibility).forEach(([key,val])=>{const el=document.getElementById('vis-'+key);if(!el)return;el.classList.toggle('eye-on',val);el.classList.toggle('eye-off',!val);el.innerHTML=val?eyeOnHTML:eyeOffHTML;const miniEl=document.getElementById('vis-'+key);if(miniEl&&miniEl.classList.contains('mini-tog')){miniEl.classList.toggle('mini-on',val);miniEl.classList.toggle('mini-off',!val);miniEl.innerHTML=(val?'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="9" height="9"><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>pub':'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="9" height="9"><path d="M2 2l12 12M6.5 6.6A2 2 0 009.4 9.5M4.2 4.3C2.8 5.4 1.8 7 1 8c1.3 2 4 5 7 5a7 7 0 003.8-1.2M7 3.1A7 7 0 0115 8c-.4.7-1 1.6-1.8 2.3"/></svg>prv');}});}
+
+function toggleVis(el,key){const isOn=el.classList.contains('eye-on');currentVisibility[key]=!isOn;el.classList.toggle('eye-on',!isOn);el.classList.toggle('eye-off',isOn);el.innerHTML=(!isOn)?eyeOnHTML:eyeOffHTML;}
+
+function toggleStatVis(el,key){const isOn=el.classList.contains('mini-on');currentVisibility[key]=!isOn;el.classList.toggle('mini-on',!isOn);el.classList.toggle('mini-off',isOn);el.innerHTML=(!isOn?'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="9" height="9"><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>pub':'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="9" height="9"><path d="M2 2l12 12M6.5 6.6A2 2 0 009.4 9.5M4.2 4.3C2.8 5.4 1.8 7 1 8c1.3 2 4 5 7 5a7 7 0 003.8-1.2M7 3.1A7 7 0 0115 8c-.4.7-1 1.6-1.8 2.3"/></svg>prv');}
+
+// ── System prompt edit ─────────────────────────────────────
+function toggleSP(){const drop=document.getElementById('sp-drop');const isOpen=drop.classList.contains('op');drop.classList.toggle('op',!isOpen);document.getElementById('sp-btn').textContent=isOpen?'Edit':'Close';if(isOpen)cancelSP();}
 function resetSP(){document.getElementById('sp-ta').value=currentPersonality.system_prompt||'';cancelSPConfirm();}
 function showSPConfirm(){document.getElementById('sp-confirm').classList.add('show');document.getElementById('sp-cin').focus();}
 function chkSP(){document.getElementById('sp-apply').disabled=document.getElementById('sp-cin').value!==BOT_NAME;}
 function cancelSP(){cancelSPConfirm();document.getElementById('sp-drop').classList.remove('op');document.getElementById('sp-btn').textContent='Edit';}
 function cancelSPConfirm(){document.getElementById('sp-confirm').classList.remove('show');document.getElementById('sp-cin').value='';document.getElementById('sp-apply').disabled=true;}
 async function applySP(){const v=document.getElementById('sp-ta').value;await fetch('/admin/personality',{method:'POST',headers:{'Content-Type':'application/json',auth:PW},body:JSON.stringify({...buildPayload(),system_prompt:v})});currentPersonality.system_prompt=v;document.getElementById('sp-view').textContent=v;cancelSP();flash('sp-flash');}
-function buildPayload(){const range={};document.querySelectorAll('input[data-axis]').forEach(el=>{range[el.dataset.axis]=parseInt(el.value);});return{system_prompt:currentPersonality.system_prompt||'',emotional_range:range,ego_notes:currentPersonality.ego_notes||'',memory_depth:parseInt(document.getElementById('depth-slider').value),memory_bias:parseFloat(document.getElementById('bias-slider').value)};}
-async function savePersonality(){await fetch('/admin/personality',{method:'POST',headers:{'Content-Type':'application/json',auth:PW},body:JSON.stringify(buildPayload())});flash('th-flash');flash('mem-flash');}
+
+// ── Save ──────────────────────────────────────────────────
+function buildPayload(){const range={};document.querySelectorAll('input[data-axis]').forEach(el=>{range[el.dataset.axis]=parseInt(el.value);});return{system_prompt:currentPersonality.system_prompt||'',emotional_range:range,ego_notes:currentPersonality.ego_notes||'',memory_depth:parseInt(document.getElementById('depth-slider').value),memory_bias:parseFloat(document.getElementById('bias-slider').value),rules:currentRules,public_visibility:currentVisibility};}
+async function savePersonality(){await fetch('/admin/personality',{method:'POST',headers:{'Content-Type':'application/json',auth:PW},body:JSON.stringify(buildPayload())});flash('th-flash');flash('mem-flash');flash('rules-flash');flash('vis-flash');}
 async function triggerReflect(){const btn=event.currentTarget;btn.textContent='Reflecting...';btn.disabled=true;await fetch('/admin/reflect',{method:'POST',headers:{auth:PW}});btn.textContent='Reflect now';btn.disabled=false;loadPersona();}
+
+// ── Utils ─────────────────────────────────────────────────
 function ub(v){document.getElementById('bv').textContent=biasLabel(v);}
 function biasLabel(v){const n=parseFloat(v);if(n<=-7)return'surfaces hard moments';if(n<=-3)return'leans negative';if(n<0)return'slightly negative';if(n===0)return'neutral';if(n<=3)return'slightly positive';if(n<=7)return'leans positive';return'surfaces good moments';}
-function flash(id){const el=document.getElementById(id);el.classList.add('on');setTimeout(()=>el.classList.remove('on'),2500);}
+function flash(id){const el=document.getElementById(id);if(!el)return;el.classList.add('on');setTimeout(()=>el.classList.remove('on'),2500);}
 function timeAgo(iso){const diff=Math.floor((Date.now()-new Date(iso))/1000);if(diff<60)return`${diff}s ago`;if(diff<3600)return`${Math.floor(diff/60)}m ago`;return`${Math.floor(diff/3600)}h ago`;}
 function shortAddr(a){return a?`${a.slice(0,6)}...${a.slice(-4)}`:'';} 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}

@@ -40,6 +40,8 @@ export async function runMigrations() {
       emotional_range JSONB,
       memory_depth INT DEFAULT 60,
       memory_bias FLOAT DEFAULT 0.0,
+      rules JSONB DEFAULT '[]',
+      public_visibility JSONB DEFAULT '{"rules":true,"ego_notes":true,"mbti":true,"status_matrix":true,"status_rooms":true,"status_wallet":true,"status_uptime":false,"mood_7d":true,"reflection_history":false,"significant_interactions":false,"live_log":false}',
       last_reflection TIMESTAMPTZ,
       updated_at TIMESTAMPTZ DEFAULT NOW()
     );
@@ -52,9 +54,12 @@ export async function runMigrations() {
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
 
-    INSERT INTO personality (id, system_prompt, emotional_range)
-    VALUES (1, '', '{"aggression":6,"intimacy":5,"existential":7,"manipulation":4}')
+    INSERT INTO personality (id, system_prompt, emotional_range, rules, public_visibility)
+    VALUES (1, '', '{"aggression":6,"intimacy":5,"existential":7,"manipulation":4}', '[]', '{"rules":true,"ego_notes":true,"mbti":true,"status_matrix":true,"status_rooms":true,"status_wallet":true,"status_uptime":false,"mood_7d":true,"reflection_history":false,"significant_interactions":false,"live_log":false}')
     ON CONFLICT (id) DO NOTHING;
+
+    ALTER TABLE personality ADD COLUMN IF NOT EXISTS rules JSONB DEFAULT '[]';
+    ALTER TABLE personality ADD COLUMN IF NOT EXISTS public_visibility JSONB DEFAULT '{"rules":true,"ego_notes":true,"mbti":true,"status_matrix":true,"status_rooms":true,"status_wallet":true,"status_uptime":false,"mood_7d":true,"reflection_history":false,"significant_interactions":false,"live_log":false}';
 
     CREATE INDEX IF NOT EXISTS idx_messages_session ON messages(session_id, created_at);
     CREATE INDEX IF NOT EXISTS idx_elog_created ON emotional_log(created_at DESC);

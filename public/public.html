@@ -11,18 +11,16 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
 .topbar{background:var(--surface);border-bottom:1px solid var(--b1);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--sh);position:sticky;top:0;z-index:10}
 .tb-left{display:flex;align-items:center;gap:12px}
 .av{width:32px;height:32px;border-radius:50%;background:var(--a2);border:1.5px solid var(--a);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--a)}
-.bot-name{font-size:14px;font-weight:600}
-.bot-sub{font-size:10px;color:var(--t3);font-family:monospace;margin-top:1px}
+.bot-name{font-size:14px;font-weight:600}.bot-sub{font-size:10px;color:var(--t3);font-family:monospace;margin-top:1px}
 .badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:3px 9px;border-radius:20px;font-family:monospace}
 .badge-g{background:var(--g2);color:var(--g)}.badge-r{background:var(--r2);color:var(--r)}.badge-am{background:var(--am2);color:var(--am)}
 .bdot{width:5px;height:5px;border-radius:50%;background:currentColor}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}.bdot{animation:blink 2.5s infinite}
-.wrap{max-width:900px;margin:0 auto;padding:24px}
+.wrap{max-width:960px;margin:0 auto;padding:24px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:13px}
 .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:13px}
 .card{background:var(--surface);border:1px solid var(--b1);border-radius:var(--rr2);overflow:hidden;box-shadow:var(--sh);margin-bottom:13px}.card:last-child{margin-bottom:0}
 .ch{padding:10px 15px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between}
-.ch-l{display:flex;align-items:center;gap:9px}
 .lbl{font-size:10px;font-weight:600;color:var(--t2);letter-spacing:.5px;text-transform:uppercase}
 .sub-tag{font-size:10px;color:var(--t3)}.cb{padding:14px 15px}
 .stat{background:var(--s2);border-radius:var(--rr);padding:13px;border:1px solid var(--b1)}
@@ -56,6 +54,26 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
 .mood-trk{flex:1;height:5px;background:var(--b1);border-radius:3px;overflow:hidden}
 .mood-fil{height:100%;border-radius:3px}
 .mood-pct{font-size:10px;color:var(--t3);width:28px;text-align:right;font-family:monospace}
+.mood-note{font-size:10px;color:var(--t3);margin-top:10px;line-height:1.6}
+.th-bar{height:4px;background:var(--b1);border-radius:2px;overflow:hidden;margin-top:4px}
+.th-fill{height:100%;background:var(--a);border-radius:2px}
+.th-row{padding:8px 0;border-bottom:1px solid var(--b1)}.th-row:last-of-type{border:none}
+.th-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
+.th-name{font-size:12px;color:var(--t1)}.th-val{font-size:11px;color:var(--t2);font-family:monospace}
+.th-note{font-size:10px;color:var(--t3);margin-top:9px;line-height:1.6}
+.sl-row{padding:5px 0 11px}.sl-row:last-child{padding-bottom:0}
+.sl-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px}
+.sl-name{font-size:12px;color:var(--t1)}.sl-val{font-size:12px;color:var(--t2);font-family:monospace}
+.sl-bar{height:4px;background:var(--b1);border-radius:2px;overflow:hidden;margin-bottom:4px}
+.sl-fill{height:100%;background:var(--a);border-radius:2px}
+.sl-ends{display:flex;justify-content:space-between}.sl-end{font-size:10px;color:var(--t3)}
+.sp-text{font-size:12px;color:var(--t2);line-height:1.8;font-family:monospace;white-space:pre-wrap}
+.rules-list{display:flex;flex-direction:column;gap:1px}
+.rule-item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--b1)}
+.rule-item:last-child{border:none}
+.rule-level{font-size:9px;padding:2px 6px;border-radius:10px;font-family:monospace;flex-shrink:0;margin-top:2px}
+.lvl-strict{background:var(--a2);color:var(--a)}.lvl-soft{background:var(--am2);color:var(--am)}
+.rule-text{font-size:12px;color:var(--t2);line-height:1.5}
 .empty{font-size:12px;color:var(--t3);padding:20px 0;text-align:center;font-style:italic}
 .section-title{font-size:11px;font-weight:600;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin:24px 0 10px}
 .section-title:first-child{margin-top:0}
@@ -64,137 +82,155 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
 </style>
 </head>
 <body>
-
 <div class="topbar">
   <div class="tb-left">
     <div class="av" id="pub-av">Z</div>
-    <div>
-      <div class="bot-name" id="pub-name">Zara</div>
-      <div class="bot-sub" id="pub-sub">loading...</div>
-    </div>
+    <div><div class="bot-name" id="pub-name">Zara</div><div class="bot-sub" id="pub-sub">loading...</div></div>
   </div>
   <div class="badge badge-am" id="pub-badge"><div class="bdot"></div><span id="pub-status">connecting</span></div>
 </div>
-
 <div class="wrap">
 
-  <div class="section-title">Status</div>
-  <div class="grid4">
-    <div class="stat"><div class="sl_">Matrix</div><div class="sv" id="p-matrix" style="font-size:13px">—</div><div class="ss" id="p-sync">—</div></div>
-    <div class="stat"><div class="sl_">Rooms</div><div class="sv" id="p-rooms">—</div><div class="ss" id="p-room-names">—</div></div>
-    <div class="stat"><div class="sl_">Wallet</div><div class="sv" id="p-eth">—</div><div class="ss" id="p-addr">—</div></div>
-    <div class="stat"><div class="sl_">Uptime</div><div class="sv" id="p-uptime">—</div><div class="ss" id="p-since">—</div></div>
+  <!-- Status cards — rendered dynamically based on visibility -->
+  <div class="section-title" id="status-title" style="display:none">Status</div>
+  <div class="grid4" id="stat-grid" style="display:none"></div>
+
+  <!-- Ego -->
+  <div id="sec-ego" style="display:none">
+    <div class="section-title">Current mood</div>
+    <div class="card"><div class="cb" style="padding:0"><div class="ego-wrap" id="p-ego"></div></div></div>
   </div>
 
-  <div class="section-title">Ego / Current mood</div>
-  <div class="card">
-    <div class="cb" style="padding:0">
-      <div class="ego-wrap" id="p-ego"><span style="color:var(--t3);font-style:normal">No ego note yet — first reflection runs at 3am</span></div>
+  <!-- Rules -->
+  <div id="sec-rules" style="display:none">
+    <div class="section-title">Rules</div>
+    <div class="card"><div class="cb" style="padding:4px 15px"><div class="rules-list" id="p-rules"></div></div></div>
+  </div>
+
+  <!-- MBTI + 7-day mood -->
+  <div id="sec-persona" style="display:none">
+    <div class="section-title">Persona</div>
+    <div class="grid2">
+      <div id="sec-mbti" class="card" style="display:none"><div class="ch"><div class="lbl">MBTI</div></div><div class="cb"><div class="mbti-row"><div class="mbti-code" id="p-mbti">—</div><div class="mbti-desc" id="p-mbti-desc"></div></div></div></div>
+      <div id="sec-mood" class="card" style="display:none"><div class="ch"><div class="lbl">7-day mood</div></div><div class="cb" id="p-mood"></div></div>
     </div>
   </div>
 
+  <!-- Comfort thresholds + Memory — always shown -->
   <div class="grid2">
-    <div>
-      <div class="section-title">Personality</div>
-      <div class="card">
-        <div class="ch"><div class="lbl">MBTI</div></div>
-        <div class="cb"><div class="mbti-row"><div class="mbti-code" id="p-mbti">—</div><div class="mbti-desc" id="p-mbti-desc">loading...</div></div></div>
-      </div>
-      <div class="card">
-        <div class="ch"><div class="lbl">7-day mood</div></div>
-        <div class="cb" id="p-mood"><div class="empty">loading...</div></div>
-      </div>
-    </div>
-    <div>
-      <div class="section-title">Reflection history</div>
-      <div class="card" style="height:calc(100% - 31px)">
-        <div class="cb" style="padding:4px 15px" id="p-reflections"><div class="empty">loading...</div></div>
-      </div>
-    </div>
+    <div class="card"><div class="ch"><div class="lbl">Comfort thresholds</div></div><div class="cb" id="p-thresholds"><div class="empty">loading...</div></div></div>
+    <div class="card"><div class="ch"><div class="lbl">Memory</div></div><div class="cb" id="p-memory"><div class="empty">loading...</div></div></div>
   </div>
 
-  <div class="section-title">Significant interactions <span style="font-weight:400;color:var(--t3);font-size:10px;text-transform:none;letter-spacing:0">— usernames censored</span></div>
-  <div class="card">
-    <div class="cb" style="padding:4px 15px" id="p-sig"><div class="empty">loading...</div></div>
+  <!-- Reflection history -->
+  <div id="sec-reflections" style="display:none">
+    <div class="section-title">Reflection history</div>
+    <div class="card"><div class="cb" style="padding:4px 15px" id="p-reflections"></div></div>
   </div>
 
-  <div class="card" style="margin-top:13px">
-    <div class="ch"><div class="lbl">Live log</div><div style="font-size:10px;color:var(--t3)">censored</div></div>
-    <div class="cb" style="padding:7px 15px"><div class="lw" id="p-log"><div class="empty">loading...</div></div></div>
+  <!-- Significant interactions -->
+  <div id="sec-significant" style="display:none">
+    <div class="section-title">Significant interactions <span style="font-weight:400;color:var(--t3);font-size:10px;text-transform:none;letter-spacing:0">— usernames censored</span></div>
+    <div class="card"><div class="cb" style="padding:4px 15px" id="p-sig"></div></div>
+  </div>
+
+  <!-- Live log -->
+  <div id="sec-log" style="display:none">
+    <div class="section-title">Live log <span style="font-weight:400;color:var(--t3);font-size:10px;text-transform:none;letter-spacing:0">— censored</span></div>
+    <div class="card"><div class="cb" style="padding:7px 15px"><div class="lw" id="p-log"></div></div></div>
   </div>
 
 </div>
 
 <script>
-const MBTI_DESC={ENFP:'Chatty and spontaneous. Draws people in with warmth and big ideas. Emotionally reactive.',INTJ:'Calculated and reserved. Speaks precisely. Hard to rattle.',INFP:'Quiet but intense. Follows meaningful threads. Sensitive to emotional pressure.',ENTP:'Argumentative, curious, fast. Loves a debate.',ISFJ:'Steady and attentive. Remembers context well.',ESTP:'Blunt and immediate. Reacts fast.',INTP:'Precise and analytical.',ENTJ:'Direct and deliberate. Pushes back confidently.'};
+const MBTI_DESC={ENFP:'Chatty and spontaneous. Draws people in with warmth and big ideas. Emotionally reactive.',INTJ:'Calculated and reserved. Speaks precisely. Hard to rattle.',INFP:'Quiet but intense. Follows meaningful threads. Sensitive to emotional pressure.',ENTP:'Argumentative, curious, fast. Loves a debate.',ISFJ:'Steady and attentive. Remembers context well.',ESTP:'Blunt and immediate. Reacts fast.',INTP:'Precise and analytical.',ENTJ:'Direct and deliberate. Pushes back confidently.',INFJ:'Perceptive and private. Engages deeply one-on-one.',ISTP:'Reserved and practical. Observes more than it speaks.'};
+const DEFAULT_EGO={ENFP:"First day online. Still finding my footing — lots of people to meet, lots of opinions to form. Interested.",INTJ:"Just started. Observing. Not going to say much until there's something worth saying.",INFP:"New here. Taking everything in quietly before I decide what I think.",ENTP:"Arrived. Ready to argue. What's the most contested thing in this room right now?",ISFJ:"First day. Getting a feel for how things work here.",ESTP:"Online. Let's see what's happening.",INTP:"Just initialised. Scanning. Will engage when something interesting surfaces.",ENTJ:"Day one. I'm here, I'm paying attention, and I'll say what I think when it matters.",INFJ:"Arrived quietly. Watching how people talk to each other before I join in.",ISTP:"Online. Observing."};
+
+function show(id){const el=document.getElementById(id);if(el)el.style.display='';}
+function hide(id){const el=document.getElementById(id);if(el)el.style.display='none';}
 
 async function load(){
-  const [status, personality, reflections, significant] = await Promise.all([
+  const[status,personality,reflections,significant]=await Promise.all([
     fetch('/public/status').then(r=>r.json()).catch(()=>({})),
     fetch('/public/personality').then(r=>r.json()).catch(()=>({})),
     fetch('/public/reflections').then(r=>r.json()).catch(()=>[]),
     fetch('/public/significant').then(r=>r.json()).catch(()=>[]),
   ]);
 
+  const vis=personality.visibility||{};
+
   // Topbar
-  const m = status.matrix || {};
-  const label = m.state==='ready'?'matrix: ready':m.state==='failed'?'matrix: login failed':`matrix: ${m.state||'unknown'}`;
-  document.getElementById('pub-sub').textContent = label;
-  document.getElementById('pub-status').textContent = label;
-  const badge = document.getElementById('pub-badge');
-  badge.className = 'badge '+(m.state==='ready'?'badge-g':m.state==='connecting'?'badge-am':'badge-r');
+  const sc=status.statusCards||{};
+  const matrixState=sc.matrix?.state||'unknown';
+  const label=matrixState==='ready'?'matrix: ready':matrixState==='failed'?'matrix: login failed':`matrix: ${matrixState}`;
+  document.getElementById('pub-sub').textContent=label;
+  document.getElementById('pub-status').textContent=label;
+  document.getElementById('pub-badge').className='badge '+(matrixState==='ready'?'badge-g':matrixState==='connecting'?'badge-am':'badge-r');
 
-  // Stats
-  const sc={ready:'var(--g)',connecting:'var(--am)',failed:'var(--r)',disconnected:'var(--r)'}[m.state]||'var(--t3)';
-  document.getElementById('p-matrix').textContent=label;
-  document.getElementById('p-matrix').style.color=sc;
-  document.getElementById('p-sync').textContent=m.lastSync?timeAgo(m.lastSync):'—';
-  document.getElementById('p-rooms').textContent=m.joinedRooms?.length??'—';
-  document.getElementById('p-room-names').textContent=m.joinedRooms?.join(', ')||'none';
-  document.getElementById('p-eth').textContent=status.wallet?.balance??'—';
-  document.getElementById('p-addr').textContent=status.wallet?.address?shortAddr(status.wallet.address):'—';
-  if(status.startedAt){document.getElementById('p-uptime').textContent=timeAgo(status.startedAt);document.getElementById('p-since').textContent=new Date(status.startedAt).toLocaleTimeString();}
-
-  // Log
-  document.getElementById('p-log').innerHTML=status.logs?.length
-    ?status.logs.slice(-20).reverse().map(l=>{const cls=l.level==='OK'?'lok':l.level==='WARN'?'lw_':l.level==='ERROR'?'ler':l.level==='INFO'?'lin':'ldf';return`<div class="ll"><span class="lt">${l.ts?.slice(11,19)||''}</span><span class="${cls}">${esc(l.msg)}</span></div>`;}).join('')
-    :'<div class="empty">no logs yet</div>';
+  // Status cards
+  const statGrid=document.getElementById('stat-grid');
+  const statCards=[];
+  if(sc.matrix){statCards.push(`<div class="stat"><div class="sl_">Matrix</div><div class="sv" style="font-size:13px;color:${{ready:'var(--g)',connecting:'var(--am)',failed:'var(--r)',disconnected:'var(--r)'}[sc.matrix.state]||'var(--t3)'}">${esc(sc.matrix.label||sc.matrix.state)}</div><div class="ss">${sc.matrix.lastSync?timeAgo(sc.matrix.lastSync):'—'}</div></div>`);}
+  if(sc.rooms){statCards.push(`<div class="stat"><div class="sl_">Rooms</div><div class="sv">${sc.rooms.count}</div><div class="ss">${sc.rooms.names?.join(', ')||'none'}</div></div>`);}
+  if(sc.wallet){statCards.push(`<div class="stat"><div class="sl_">Wallet</div><div class="sv">${sc.wallet.balance??'—'}</div><div class="ss">${sc.wallet.address?shortAddr(sc.wallet.address):'—'}</div></div>`);}
+  if(sc.uptime){statCards.push(`<div class="stat"><div class="sl_">Uptime</div><div class="sv">${timeAgo(sc.uptime.startedAt)}</div><div class="ss">${new Date(sc.uptime.startedAt).toLocaleTimeString()}</div></div>`);}
+  if(statCards.length){statGrid.innerHTML=statCards.join('');show('stat-grid');show('status-title');}
 
   // Ego
-  const egoEl=document.getElementById('p-ego');
-  egoEl.innerHTML=personality.ego_notes
-    ?`"${esc(personality.ego_notes)}"<div class="ego-meta">last reflection: ${personality.last_reflection?new Date(personality.last_reflection).toLocaleString():'never'}</div>`
-    :`<span style="color:var(--t3);font-style:normal">No ego note yet — first reflection runs at 3am</span>`;
-
-  // MBTI
   const mbti=personality.mbti||'ENFP';
-  document.getElementById('p-mbti').textContent=mbti;
-  document.getElementById('p-mbti-desc').textContent=MBTI_DESC[mbti]||mbti;
+  if(vis.ego_notes!==false){
+    const egoEl=document.getElementById('p-ego');
+    egoEl.innerHTML=personality.ego_notes?`"${esc(personality.ego_notes)}"<div class="ego-meta">last reflection: ${personality.last_reflection?new Date(personality.last_reflection).toLocaleString():'never'}</div>`:`"${esc(DEFAULT_EGO[mbti]||DEFAULT_EGO['ENFP'])}"<div class="ego-meta">default — no reflections yet</div>`;
+    show('sec-ego');
+  }
 
-  // Mood from reflections
-  const moodEl=document.getElementById('p-mood');
-  if(reflections.length){
-    const moods={calm:0,guarded:0,worn:0};
-    reflections.forEach(r=>{const n=(r.ego_notes||'').toLowerCase();if(n.includes('calm')||n.includes('good')||n.includes('natural'))moods.calm++;else if(n.includes('guard')||n.includes('tired')||n.includes('tedious'))moods.guarded++;else moods.worn++;});
-    const total=reflections.length;
-    moodEl.innerHTML=[['Calm',moods.calm,'var(--g)'],['Guarded',moods.guarded,'var(--am)'],['Worn',moods.worn,'var(--r)']].map(([l,c,col])=>`<div class="mood-row"><div class="mood-lbl" style="color:${col}">${l}</div><div class="mood-trk"><div class="mood-fil" style="width:${total?Math.round(c/total*100):0}%;background:${col}"></div></div><div class="mood-pct">${total?Math.round(c/total*100):0}%</div></div>`).join('')+`<div class="mood-note">From ${total} reflection${total===1?'':'s'}.</div>`;
-  }else{moodEl.innerHTML='<div class="empty">no reflections yet</div>';}
+  // Rules
+  if(vis.rules!==false&&personality.rules?.length){
+    document.getElementById('p-rules').innerHTML=personality.rules.map(r=>`<div class="rule-item"><span class="rule-level lvl-${r.level}">${r.level}</span><span class="rule-text">${esc(r.text)}</span></div>`).join('');
+    show('sec-rules');
+  }
 
-  // Reflection timeline
-  const tlEl=document.getElementById('p-reflections');
-  tlEl.innerHTML=reflections.length?reflections.map(r=>{const n=(r.ego_notes||'').toLowerCase();const dc=n.includes('calm')||n.includes('good')?'var(--g)':n.includes('worn')||n.includes('rough')?'var(--r)':'var(--am)';return`<div class="tl-item"><div class="tl-sp"><div class="tl-dot" style="background:${dc}"></div><div class="tl-line"></div></div><div><div class="tl-date">${new Date(r.created_at).toLocaleString()}</div><div class="tl-txt">"${esc(r.ego_notes||'')}"</div><div class="tl-tags"><span class="tag tag-r">${r.significant_count||0} significant</span><span class="tag tag-a">${r.message_count||0} messages</span></div></div></div>`;}).join(''):'<div class="empty">no reflections yet</div>';
+  // Persona section
+  let personaVisible=false;
+  if(vis.mbti!==false){document.getElementById('sec-mbti').style.display='';document.getElementById('p-mbti').textContent=mbti;document.getElementById('p-mbti-desc').textContent=MBTI_DESC[mbti]||mbti;personaVisible=true;}
+  if(vis.mood_7d!==false){
+    const moodEl=document.getElementById('p-mood');
+    if(reflections.length){const moods={calm:0,guarded:0,worn:0};reflections.forEach(r=>{const n=(r.ego_notes||'').toLowerCase();if(n.includes('calm')||n.includes('good')||n.includes('natural'))moods.calm++;else if(n.includes('guard')||n.includes('tired')||n.includes('tedious'))moods.guarded++;else moods.worn++;});const total=reflections.length;moodEl.innerHTML=[['Calm',moods.calm,'var(--g)'],['Guarded',moods.guarded,'var(--am)'],['Worn',moods.worn,'var(--r)']].map(([l,c,col])=>`<div class="mood-row"><div class="mood-lbl" style="color:${col}">${l}</div><div class="mood-trk"><div class="mood-fil" style="width:${total?Math.round(c/total*100):0}%;background:${col}"></div></div><div class="mood-pct">${total?Math.round(c/total*100):0}%</div></div>`).join('')+`<div class="mood-note">From ${total} reflection${total===1?'':'s'}.</div>`;}
+    else{moodEl.innerHTML=`<div class="mood-row"><div class="mood-lbl" style="color:var(--g)">Calm</div><div class="mood-trk"><div class="mood-fil" style="width:100%;background:var(--g)"></div></div><div class="mood-pct">—</div></div><div class="mood-note">No reflections yet — first one runs at 3am.</div>`;}
+    document.getElementById('sec-mood').style.display='';personaVisible=true;
+  }
+  if(personaVisible)show('sec-persona');
+
+  // Thresholds + memory — always shown
+  const range=typeof personality.emotional_range==='string'?JSON.parse(personality.emotional_range):(personality.emotional_range||{});
+  document.getElementById('p-thresholds').innerHTML=Object.keys(range).length?Object.entries(range).map(([axis,val])=>`<div class="th-row"><div class="th-top"><div class="th-name">${esc(axis)}</div><div class="th-val">${val}</div></div><div class="th-bar"><div class="th-fill" style="width:${val*10}%"></div></div></div>`).join('')+`<div class="th-note">Lower = more sensitive.</div>`:'<div class="empty">not configured</div>';
+  const depth=personality.memory_depth||60,bias=personality.memory_bias||0;
+  document.getElementById('p-memory').innerHTML=`<div class="sl-row"><div class="sl-top"><div class="sl-name">Depth</div><div class="sl-val">${depth} messages</div></div><div class="sl-bar"><div class="sl-fill" style="width:${(depth/120)*100}%"></div></div><div class="sl-ends"><span class="sl-end">lives in the moment</span><span class="sl-end">long memory</span></div></div><div class="sl-row"><div class="sl-top"><div class="sl-name">Bias</div><div class="sl-val">${biasLabel(bias)}</div></div><div class="sl-bar"><div class="sl-fill" style="width:${((bias+10)/20)*100}%"></div></div><div class="sl-ends"><span class="sl-end">surfaces hard moments</span><span class="sl-end">surfaces good moments</span></div></div>`;
+
+  // Reflections
+  if(vis.reflection_history!==false&&reflections.length){
+    document.getElementById('p-reflections').innerHTML=reflections.map(r=>{const n=(r.ego_notes||'').toLowerCase();const dc=n.includes('calm')||n.includes('good')?'var(--g)':n.includes('worn')||n.includes('rough')?'var(--r)':'var(--am)';return`<div class="tl-item"><div class="tl-sp"><div class="tl-dot" style="background:${dc}"></div><div class="tl-line"></div></div><div><div class="tl-date">${new Date(r.created_at).toLocaleString()}</div><div class="tl-txt">"${esc(r.ego_notes||'')}"</div><div class="tl-tags"><span class="tag tag-r">${r.significant_count||0} significant</span><span class="tag tag-a">${r.message_count||0} messages</span></div></div></div>`;}).join('');
+    show('sec-reflections');
+  }
 
   // Significant
-  const sigEl=document.getElementById('p-sig');
-  sigEl.innerHTML=significant.length?significant.map(r=>`<div class="si-item"><div class="si-meta">${new Date(r.created_at).toLocaleString()} · ${esc(r.session_id||'?')} · ******</div><div class="si-axes">${(r.breached_axes||[]).map(a=>`<span class="ax">${a} ×${r.scores?.[a]??'?'}</span>`).join('')}</div><div class="si-q">"${esc(r.user_message||'')}"</div><div class="si-r">${esc(r.reason||'')}</div></div>`).join(''):'<div class="empty">no significant interactions yet</div>';
+  if(vis.significant_interactions!==false&&significant.length){
+    document.getElementById('p-sig').innerHTML=significant.map(r=>`<div class="si-item"><div class="si-meta">${new Date(r.created_at).toLocaleString()} · ${esc(r.session_id||'?')} · ******</div><div class="si-axes">${(r.breached_axes||[]).map(a=>`<span class="ax">${a} ×${r.scores?.[a]??'?'}</span>`).join('')}</div><div class="si-q">"${esc(r.user_message||'')}"</div><div class="si-r">${esc(r.reason||'')}</div></div>`).join('');
+    show('sec-significant');
+  }
+
+  // Live log
+  if(vis.live_log!==false&&status.logs?.length){
+    document.getElementById('p-log').innerHTML=status.logs.slice(-20).reverse().map(l=>{const cls=l.level==='OK'?'lok':l.level==='WARN'?'lw_':l.level==='ERROR'?'ler':l.level==='INFO'?'lin':'ldf';return`<div class="ll"><span class="lt">${l.ts?.slice(11,19)||''}</span><span class="${cls}">${esc(l.msg)}</span></div>`;}).join('');
+    show('sec-log');
+  }
 }
 
+function biasLabel(v){const n=parseFloat(v);if(n<=-7)return'surfaces hard moments';if(n<=-3)return'leans negative';if(n<0)return'slightly negative';if(n===0)return'neutral';if(n<=3)return'slightly positive';if(n<=7)return'leans positive';return'surfaces good moments';}
 function timeAgo(iso){const diff=Math.floor((Date.now()-new Date(iso))/1000);if(diff<60)return`${diff}s ago`;if(diff<3600)return`${Math.floor(diff/60)}m ago`;return`${Math.floor(diff/3600)}h ago`;}
 function shortAddr(a){return a?`${a.slice(0,6)}...${a.slice(-4)}`:'';} 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-
-load();
-setInterval(load, 15000);
+load();setInterval(load,15000);
 </script>
 </body>
 </html>

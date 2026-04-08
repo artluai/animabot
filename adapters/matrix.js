@@ -1,7 +1,7 @@
 import sdk from "matrix-js-sdk";
-import { botStatus, log } from "../core/status.js";
+import { botStatus, setMatrixState, log } from "../core/status.js";
 import { getHistory, saveMessage, getPersonality, upsertUser, logSignificantInteraction } from "../core/memory.js";
-import { getReply, getProactiveMessage, scoreInteraction } from "../core/ai.js";
+import { getReply, getProactiveMessage, scoreInteraction, buildRulesBlock } from "../core/ai.js";
 import { handleCommand } from "../core/commands.js";
 import { wallet, getBalance } from "../core/wallet.js";
 import "dotenv/config";
@@ -31,9 +31,13 @@ async function buildSystemPrompt(inDM) {
     ? `\nHow you're feeling right now: ${personality.ego_notes}\n`
     : "";
 
+  const rulesBlock = buildRulesBlock(personality.rules);
+
+  const balanceStr = ethBalance ? `${ethBalance} ETH` : "balance unavailable";
+
   return `${personality.system_prompt || process.env.BOT_PERSONALITY || `You are ${botName}, a crypto-native entity with your own Ethereum wallet. You are a peer, not an assistant.`}
-${egoBlock}
-Your wallet address: ${wallet.address} (${ethBalance ?? "?"} ETH)
+${egoBlock}${rulesBlock}
+Your wallet address: ${wallet ? wallet.address : "not configured"} (${balanceStr})
 ${context}
 You are ${botName} — stay in character always.`;
 }
@@ -75,12 +79,10 @@ async function handleMessage(client, event, room) {
       reply = await getReply([...history, { role: "user", content: userContent }], systemPrompt, dm);
       await saveMessage(roomId, "assistant", reply);
 
-      // Score async
       const personality = await getPersonality();
       scoreAndLog(roomId, sender, body, reply, personality.system_prompt, personality.emotional_range);
     }
 
-    // Proactive chiming (group only)
     if (!reply && !dm) {
       const timeSinceLast = Date.now() - state.lastProactiveTime;
       const recentActivity = state.recentMessages.filter(m => Date.now() - m.time < 3 * 60 * 1000).length;
@@ -121,7 +123,9 @@ export async function startMatrix() {
   const user = process.env.MATRIX_USER;
   const password = process.env.MATRIX_PASSWORD;
 
-  if (!homeserver || !user || !password) {
+  if (!homeserver || !user || !password ||
+      homeserver.includes("your_") || user.includes("yourbot") || password.includes("your_")) {
+    setMatrixState("failed", "no credentials");
     log("WARN", "Matrix credentials not set — skipping Matrix adapter");
     return;
   }
@@ -133,8 +137,11 @@ export async function startMatrix() {
     botStatus.matrix.attempts++;
     log("OK", "Matrix login successful");
   } catch (err) {
-    botStatus.matrix.state = "failed";
-    botStatus.matrix.error = err.message;
+    const msg = err.message || "";
+    const label = msg.includes("403") || msg.includes("Invalid username")
+      ? "login failed — invalid credentials"
+      : `login failed — ${msg}`;
+    setMatrixState("failed", label);
     botStatus.matrix.attempts++;
     log("ERROR", `Matrix login failed: ${err.message}`);
     return;
@@ -150,7 +157,6 @@ export async function startMatrix() {
         botStatus.matrix.joinedRooms = client.getRooms().map(r => r.name || r.roomId);
         log("OK", `Joined room: ${member.roomId}`);
       } catch (err) {
-        botStatus.matrix.error = err.message;
         log("ERROR", `Failed to join: ${err.message}`);
       }
     }
@@ -158,7 +164,7 @@ export async function startMatrix() {
 
   client.once("sync", (state) => {
     if (state === "PREPARED") {
-      botStatus.matrix.state = "ready";
+      setMatrixState("ready");
       botStatus.matrix.lastSync = new Date().toISOString();
       botStatus.matrix.joinedRooms = client.getRooms().map(r => r.name || r.roomId);
       log("OK", `Matrix synced. Rooms: ${botStatus.matrix.joinedRooms.join(", ")}`);
@@ -167,7 +173,7 @@ export async function startMatrix() {
 
   client.on("sync", (state) => {
     if (state === "SYNCING") botStatus.matrix.lastSync = new Date().toISOString();
-    if (state === "ERROR") { botStatus.matrix.state = "disconnected"; log("ERROR", "Matrix sync error"); }
+    if (state === "ERROR") { setMatrixState("disconnected"); log("ERROR", "Matrix sync error"); }
   });
 
   client.on("Room.timeline", (event, room) => handleMessage(client, event, room));

@@ -9,6 +9,20 @@ const ai = new OpenAI({
 const CHAT_MODEL = "qwen/qwen-plus";
 const SCORE_MODEL = "qwen/qwen-turbo";
 
+// Build the rules block to inject into the system prompt
+export function buildRulesBlock(rules) {
+  if (!rules || !Array.isArray(rules) || rules.length === 0) return "";
+  const strict = rules.filter(r => r.level === "strict").map(r => `- ${r.text}`);
+  const soft = rules.filter(r => r.level === "soft").map(r => `- ${r.text}`);
+  let block = "";
+  if (strict.length) block += `Strictly follow these rules:\n${strict.join("\n")}`;
+  if (soft.length) {
+    if (block) block += "\n\n";
+    block += `Where natural, try to:\n${soft.join("\n")}`;
+  }
+  return block ? `\n\n${block}` : "";
+}
+
 export async function getReply(messages, systemPrompt, isDM = false) {
   const response = await ai.chat.completions.create({
     model: CHAT_MODEL,

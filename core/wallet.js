@@ -1,16 +1,20 @@
 import { ethers } from "ethers";
 import "dotenv/config";
 
-export const wallet = new ethers.Wallet(process.env.BOT_WALLET_PRIVATE_KEY);
+// Derive wallet address offline — no provider needed
+const privateKey = process.env.BOT_WALLET_PRIVATE_KEY;
+export const wallet = privateKey ? new ethers.Wallet(privateKey) : null;
 
 export async function getBalance() {
+  if (!wallet) return null;
+  const rpcUrl = process.env.RPC_URL;
+  if (!rpcUrl) return null;
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
-
-    const response = await fetch(process.env.RPC_URL, {
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(rpcUrl, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         jsonrpc: "2.0",
         method: "eth_getBalance",
@@ -19,21 +23,19 @@ export async function getBalance() {
       }),
       signal: controller.signal,
     });
-
     clearTimeout(timeout);
-
-    if (!response.ok) return null;
-
-    const data = await response.json();
-    if (data.error || typeof data.result !== "string") return null;
-
-    const bal = BigInt(data.result);
-    return parseFloat(ethers.formatEther(bal)).toFixed(4);
+    const data = await res.json();
+    if (data.result) {
+      const wei = BigInt(data.result);
+      return parseFloat(ethers.formatEther(wei)).toFixed(4);
+    }
+    return null;
   } catch {
     return null;
   }
 }
 
 export async function signMessage(message) {
+  if (!wallet) throw new Error("No wallet configured");
   return wallet.signMessage(message);
 }
