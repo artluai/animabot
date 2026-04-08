@@ -135,6 +135,7 @@ export async function startMatrix() {
   try {
     await client.loginWithPassword(user, password);
     botStatus.matrix.attempts++;
+    _matrixClient = client;
     log("OK", "Matrix login successful");
   } catch (err) {
     const msg = err.message || "";
@@ -177,4 +178,27 @@ export async function startMatrix() {
   });
 
   client.on("Room.timeline", (event, room) => handleMessage(client, event, room));
+
+  return client;
+}
+
+// ── Avatar ────────────────────────────────────────────────
+let _matrixClient = null;
+
+export function getMatrixClient() { return _matrixClient; }
+
+export async function setMatrixAvatar(imageUrl) {
+  if (!_matrixClient) { log("WARN", "Can't set avatar — Matrix not connected"); return; }
+  try {
+    const res = await fetch(imageUrl);
+    if (!res.ok) throw new Error(`Failed to fetch image: ${res.status}`);
+    const buffer = await res.arrayBuffer();
+    const contentType = res.headers.get("content-type") || "image/png";
+    const uploadRes = await _matrixClient.uploadContent(Buffer.from(buffer), { type: contentType, name: "avatar" });
+    const mxcUrl = uploadRes?.content_uri || uploadRes;
+    await _matrixClient.setAvatarUrl(mxcUrl);
+    log("OK", `Avatar set: ${mxcUrl}`);
+  } catch (err) {
+    log("WARN", `Avatar set failed: ${err.message}`);
+  }
 }

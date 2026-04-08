@@ -253,6 +253,36 @@ input[type=range]{width:100%;display:block;accent-color:var(--a);cursor:pointer}
       <div class="cb"><div class="ego-wrap" id="ego-box"><span style="color:var(--t3);font-style:normal">loading...</span></div></div>
     </div>
 
+    <!-- Avatar -->
+    <div class="card" style="margin-bottom:13px">
+      <div class="ch"><div class="lbl">Avatar</div></div>
+      <div class="cb" style="display:flex;align-items:center;gap:13px">
+        <div style="position:relative;width:52px;height:52px;flex-shrink:0"><img id="admin-avatar-img" src="" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:1.5px solid var(--a);display:none"><div class="av" id="admin-avatar-fallback" style="width:52px;height:52px;font-size:20px">Z</div></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:7px">
+          <input id="avatar-url-input" style="width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:7px;padding:7px 10px;font-size:12px;color:var(--t1);font-family:monospace;outline:none" placeholder="https://..." oninput="previewAvatar(this.value)">
+          <div style="display:flex;gap:7px"><button class="btn btn-sm btn-a" onclick="saveAvatar()">Set avatar</button><div class="flash" id="avatar-flash">Avatar updated</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Avatar -->
+    <div class="card" style="margin-bottom:13px">
+      <div class="ch"><div class="lbl">Avatar</div></div>
+      <div class="cb" style="display:flex;align-items:center;gap:13px">
+        <div style="position:relative;width:52px;height:52px;flex-shrink:0">
+          <img id="admin-avatar-img" src="" style="width:52px;height:52px;border-radius:50%;object-fit:cover;border:1.5px solid var(--a);display:none">
+          <div class="av" id="admin-avatar-fallback" style="width:52px;height:52px;font-size:20px">Z</div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:7px">
+          <input id="avatar-url-input" style="width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:7px;padding:7px 10px;font-size:12px;color:var(--t1);font-family:monospace;outline:none" placeholder="https://i.ibb.co/..." oninput="previewAvatar(this.value)">
+          <div style="display:flex;gap:7px;align-items:center">
+            <button class="btn btn-sm btn-a" onclick="saveAvatar()">Set avatar</button>
+            <div class="flash" id="avatar-flash">Avatar updated</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="persona-layout">
       <div class="left-col">
 
@@ -404,7 +434,7 @@ document.getElementById('pw-input').addEventListener('keydown',e=>{if(e.key==='E
 
 function go(id,el){document.querySelectorAll('.pane,.pane-flex').forEach(p=>p.classList.remove('on'));document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));document.getElementById('pane-'+id).classList.add('on');el.classList.add('on');document.getElementById('tb-t').textContent=TBM[id][0];document.getElementById('tb-s').textContent=TBM[id][1];if(id==='significant')loadSignificant();if(id==='memory')loadMemory();if(id==='persona')loadPersona();if(id==='chat')loadChatHistory();}
 
-function init(){document.getElementById('sb-av').textContent=BOT_NAME[0];document.getElementById('sb-name').textContent=BOT_NAME;document.getElementById('sp-confirm-name').textContent=BOT_NAME;loadStatus();setInterval(loadStatus,10000);}
+function init(){loadAdminAvatar();document.getElementById('sb-av').textContent=BOT_NAME[0];document.getElementById('sb-name').textContent=BOT_NAME;document.getElementById('sp-confirm-name').textContent=BOT_NAME;loadStatus();setInterval(loadStatus,10000);}
 
 async function loadStatus(){const data=await fetch('/admin/status',{headers:{auth:PW}}).then(r=>r.json()).catch(()=>null);if(!data)return;const m=data.matrix;const label=m.label||(m.state==='ready'?'matrix: ready':m.state==='failed'?'matrix: login failed':`matrix: ${m.state}`);const sc={ready:'var(--g)',connecting:'var(--am)',failed:'var(--r)',disconnected:'var(--r)'}[m.state]||'var(--t3)';document.getElementById('sb-handle').textContent=label;document.getElementById('sb-dot').className='av-dot'+(m.state==='ready'?' ok':m.state==='connecting'?'':' err');const badge=document.getElementById('status-badge');badge.className='badge '+(m.state==='ready'?'badge-g':m.state==='connecting'?'badge-am':'badge-r');document.getElementById('status-text').textContent=label;document.getElementById('st-matrix').textContent=label;document.getElementById('st-matrix').style.color=sc;document.getElementById('st-sync').textContent=m.lastSync?timeAgo(m.lastSync):(m.error||'—');document.getElementById('st-rooms').textContent=m.joinedRooms?.length??'—';document.getElementById('st-room-names').textContent=m.joinedRooms?.join(', ')||'none';document.getElementById('st-eth').textContent=data.wallet?.balance??'—';document.getElementById('st-addr').textContent=data.wallet?.address?shortAddr(data.wallet.address):'—';if(data.startedAt){document.getElementById('st-uptime').textContent=timeAgo(data.startedAt);document.getElementById('st-since').textContent=new Date(data.startedAt).toLocaleTimeString();}document.getElementById('log-list').innerHTML=data.logs?.length?data.logs.slice(-30).reverse().map(l=>{const cls=l.level==='OK'?'lok':l.level==='WARN'?'lw_':l.level==='ERROR'?'ler':l.level==='INFO'?'lin':'ldf';return`<div class="ll"><span class="lt">${l.ts?.slice(11,19)||''}</span><span class="${cls}">${esc(l.msg)}</span></div>`;}).join(''):'<div class="empty">no logs yet</div>';document.getElementById('tb-s').textContent=m.lastSync?`synced ${timeAgo(m.lastSync)}`:'not synced';}
 
@@ -473,6 +503,23 @@ function biasLabel(v){const n=parseFloat(v);if(n<=-7)return'surfaces hard moment
 function flash(id){const el=document.getElementById(id);if(!el)return;el.classList.add('on');setTimeout(()=>el.classList.remove('on'),2500);}
 function timeAgo(iso){const diff=Math.floor((Date.now()-new Date(iso))/1000);if(diff<60)return`${diff}s ago`;if(diff<3600)return`${Math.floor(diff/60)}m ago`;return`${Math.floor(diff/3600)}h ago`;}
 function shortAddr(a){return a?`${a.slice(0,6)}...${a.slice(-4)}`:'';} 
+function previewAvatar(url){
+  const img=document.getElementById("admin-avatar-img");
+  const fb=document.getElementById("admin-avatar-fallback");
+  if(url){img.src=url;img.style.display="";fb.style.display="none";}
+  else{img.style.display="none";fb.style.display="";}
+}
+async function saveAvatar(){
+  const url=document.getElementById("avatar-url-input").value.trim();
+  if(!url)return;
+  const r=await fetch("/admin/avatar",{method:"POST",headers:{"Content-Type":"application/json",auth:PW},body:JSON.stringify({url})});
+  if(r.ok){localStorage.setItem("zara_avatar",url);flash("avatar-flash");}
+  else{alert("Failed to set avatar");}
+}
+function loadAdminAvatar(){
+  const url=localStorage.getItem("zara_avatar")||"";
+  if(url){document.getElementById("avatar-url-input").value=url;previewAvatar(url);}
+}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 </script>
 </body>

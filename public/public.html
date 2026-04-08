@@ -85,7 +85,7 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
 <body>
 <div class="topbar">
   <div class="tb-left">
-    <div class="av" id="pub-av">Z</div>
+    <div style="position:relative;width:36px;height:36px;flex-shrink:0"><img id="pub-avatar-img" src="" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1.5px solid var(--a);display:none"><div class="av" id="pub-av" style="width:36px;height:36px;font-size:13px">Z</div></div>
     <div><div class="bot-name" id="pub-name">Zara</div><div class="bot-sub" id="pub-sub">loading...</div></div>
   </div>
   <div class="badge badge-am" id="pub-badge"><div class="bdot"></div><span id="pub-status">connecting</span></div>
@@ -240,7 +240,15 @@ function biasLabel(v){const n=parseFloat(v);if(n<=-7)return'surfaces hard moment
 function timeAgo(iso){const diff=Math.floor((Date.now()-new Date(iso))/1000);if(diff<60)return`${diff}s ago`;if(diff<3600)return`${Math.floor(diff/60)}m ago`;return`${Math.floor(diff/3600)}h ago`;}
 function shortAddr(a){return a?`${a.slice(0,6)}...${a.slice(-4)}`:'';} 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-load();setInterval(load,15000);
+function loadAvatar(){
+  const url=localStorage.getItem("zara_avatar")||"";
+  if(url){
+    const img=document.getElementById("pub-avatar-img");
+    img.src=url;img.style.display="";
+    document.getElementById("pub-av").style.display="none";
+  }
+}
+loadAvatar();load();setInterval(load,15000);
 </script>
 </body>
 </html>

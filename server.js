@@ -210,3 +210,19 @@ app.post("/admin/debug", requireAdmin, async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => log("INFO", `Server running on port ${PORT}`));
+
+// ── Avatar ────────────────────────────────────────────────
+app.post("/admin/avatar", requireAdmin, async (req, res) => {
+  const { url } = req.body;
+  if (!url) return res.status(400).json({ error: "Missing url" });
+  try {
+    const { setMatrixAvatar } = await import("./adapters/matrix.js");
+    await setMatrixAvatar(url);
+    // Save to DB as a setting
+    await db.query(`UPDATE personality SET updated_at=NOW() WHERE id=1`);
+    log("INFO", `Avatar updated to: ${url}`);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
