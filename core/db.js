@@ -41,6 +41,7 @@ export async function runMigrations() {
       memory_depth INT DEFAULT 60,
       memory_bias FLOAT DEFAULT 0.0,
       rules JSONB DEFAULT '[]',
+      chime_config JSONB DEFAULT '{"enabled":false,"interval_ms":1800000,"min_messages":5,"probability":0.05}',
       public_visibility JSONB DEFAULT '{"system_prompt":false,"rules":true,"ego_notes":true,"mbti":true,"status_matrix":true,"status_rooms":true,"status_wallet":true,"status_uptime":false,"mood_7d":true,"reflection_history":false,"significant_interactions":false,"live_log":false}',
       last_reflection TIMESTAMPTZ,
       updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -63,6 +64,7 @@ export async function runMigrations() {
     ON CONFLICT (id) DO NOTHING;
 
     ALTER TABLE personality ADD COLUMN IF NOT EXISTS rules JSONB DEFAULT '[]';
+    ALTER TABLE personality ADD COLUMN IF NOT EXISTS chime_config JSONB DEFAULT '{"enabled":false,"interval_ms":1800000,"min_messages":5,"probability":0.05}';
     ALTER TABLE personality ADD COLUMN IF NOT EXISTS public_visibility JSONB DEFAULT '{"system_prompt":false,"rules":true,"ego_notes":true,"mbti":true,"status_matrix":true,"status_rooms":true,"status_wallet":true,"status_uptime":false,"mood_7d":true,"reflection_history":false,"significant_interactions":false,"live_log":false}';
 
     CREATE INDEX IF NOT EXISTS idx_messages_session ON messages(session_id, created_at);

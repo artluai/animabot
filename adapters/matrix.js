@@ -86,20 +86,26 @@ async function handleMessage(client, event, room) {
     }
 
     if (!reply && !dm) {
-      const timeSinceLast = Date.now() - state.lastProactiveTime;
-      const recentActivity = state.recentMessages.filter(m => Date.now() - m.time < 3 * 60 * 1000).length;
-      const lastWasBot = state.recentMessages.length > 0 &&
-        state.recentMessages[state.recentMessages.length - 1].sender === client.getUserId();
-      if (
-        timeSinceLast > 30 * 60 * 1000 &&
-        recentActivity >= 5 &&
-        Math.random() < 0.05 &&
-        !lastWasBot
-      ) {
-        const systemPrompt = await buildSystemPrompt(false);
-        reply = await getProactiveMessage(state.recentMessages.slice(-8), systemPrompt, process.env.BOT_NAME || "Zara");
-        state.lastProactiveTime = Date.now();
-        log("INFO", "Proactive chime sent");
+      const personality = await getPersonality();
+      const chime = personality.chime_config
+        ? (typeof personality.chime_config === 'string' ? JSON.parse(personality.chime_config) : personality.chime_config)
+        : { enabled: false };
+      if (!chime.enabled) { state.chimeWasEnabled = false; }
+      if (chime.enabled) {
+        if (!state.chimeWasEnabled) { state.chimeWasEnabled = true; state.lastProactiveTime = Date.now(); }
+        const intervalMs = chime.interval_ms || 1800000;
+        const minMessages = chime.min_messages || 5;
+        const probability = chime.probability || 0.05;
+        const timeSinceLast = Date.now() - state.lastProactiveTime;
+        const recentActivity = state.recentMessages.filter(m => Date.now() - m.time < 3 * 60 * 1000).length;
+        const lastWasBot = state.recentMessages.length > 0 &&
+          state.recentMessages[state.recentMessages.length - 1].sender === client.getUserId();
+        if (timeSinceLast > intervalMs && recentActivity >= minMessages && Math.random() < probability && !lastWasBot) {
+          const systemPrompt = await buildSystemPrompt(false);
+          reply = await getProactiveMessage(state.recentMessages.slice(-8), systemPrompt, process.env.BOT_NAME || "Zara");
+          state.lastProactiveTime = Date.now();
+          log("INFO", "Proactive chime sent");
+        }
       }
     }
 

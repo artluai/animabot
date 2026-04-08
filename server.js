@@ -117,14 +117,15 @@ app.get("/admin/significant", requireAdmin, async (req, res) => {
 app.get("/admin/personality", requireAdmin, async (req, res) => {
   const { rows } = await db.query(`SELECT * FROM personality WHERE id = 1`);
   const p = rows[0] || {};
-  res.json({ ...p, rules: parseRules(p.rules), public_visibility: parseVisibility(p.public_visibility) });
+  const chime = p.chime_config ? (typeof p.chime_config === 'string' ? JSON.parse(p.chime_config) : p.chime_config) : {"enabled":false,"interval_ms":1800000,"min_messages":5,"probability":0.05};
+  res.json({ ...p, rules: parseRules(p.rules), public_visibility: parseVisibility(p.public_visibility), chime_config: chime });
 });
 
 app.post("/admin/personality", requireAdmin, async (req, res) => {
-  const { system_prompt, emotional_range, ego_notes, memory_depth, memory_bias, rules, public_visibility } = req.body;
+  const { system_prompt, emotional_range, ego_notes, memory_depth, memory_bias, rules, public_visibility, chime_config } = req.body;
   await db.query(
-    `UPDATE personality SET system_prompt=$1, emotional_range=$2, ego_notes=$3, memory_depth=$4, memory_bias=$5, rules=$6, public_visibility=$7, updated_at=NOW() WHERE id=1`,
-    [system_prompt, JSON.stringify(emotional_range), ego_notes, memory_depth, memory_bias, JSON.stringify(rules || []), JSON.stringify(public_visibility || DEFAULT_VISIBILITY)]
+    `UPDATE personality SET system_prompt=$1, emotional_range=$2, ego_notes=$3, memory_depth=$4, memory_bias=$5, rules=$6, public_visibility=$7, chime_config=$8, updated_at=NOW() WHERE id=1`,
+    [system_prompt, JSON.stringify(emotional_range), ego_notes, memory_depth, memory_bias, JSON.stringify(rules || []), JSON.stringify(public_visibility || DEFAULT_VISIBILITY), JSON.stringify(chime_config || {"enabled":false,"interval_ms":1800000,"min_messages":5,"probability":0.05})]
   );
   log("INFO", "Personality updated via admin panel");
   res.json({ ok: true });
