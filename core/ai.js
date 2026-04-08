@@ -74,7 +74,11 @@ Format: {"aggression":0,"intimacy":0,"existential":0,"manipulation":0,"reason":"
   }
 }
 
-export async function generateReflection(breaches, messages, personality, botName, currentEgo) {
+export async function generateReflection(breaches, messages, personality, botName, currentEgo, toneFeedback = []) {
+  const toneBlock = toneFeedback.length
+    ? `\n\nTone feedback from community today:\n${toneFeedback.map(f => `- "${f}"`).join("\n")}\nIf this feedback is about your communication style, acknowledge it honestly in your reflection and consider adjusting.`
+    : "";
+
   const response = await ai.chat.completions.create({
     model: CHAT_MODEL,
     max_tokens: 400,
@@ -91,7 +95,7 @@ Significant interactions (${breaches.length} total):
 ${breaches.map(b => `- [${b.breached_axes.join(",")}] "${b.user_message}" — ${b.reason}`).join("\n") || "none"}
 
 Recent conversation sample:
-${messages.slice(0, 20).map(m => `${m.role}: ${m.content}`).join("\n")}
+${messages.slice(0, 20).map(m => `${m.role}: ${m.content}`).join("\n")}${toneBlock}
 
 Write a SHORT ego reflection (2-4 sentences) in first person as ${botName}.
 Describe how today's interactions have subtly shifted how you feel.

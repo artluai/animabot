@@ -51,8 +51,11 @@ export async function runMigrations() {
       ego_notes TEXT,
       significant_count INT,
       message_count INT,
+      caused_by TEXT,
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
+
+    ALTER TABLE reflection_log ADD COLUMN IF NOT EXISTS caused_by TEXT;
 
     INSERT INTO personality (id, system_prompt, emotional_range, rules, public_visibility)
     VALUES (1, '', '{"aggression":6,"intimacy":5,"existential":7,"manipulation":4}', '[]',
