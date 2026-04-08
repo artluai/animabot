@@ -209,7 +209,7 @@ input[type=range]{width:100%;display:block;accent-color:var(--a);cursor:pointer}
       <div class="stat"><div class="sl_">ETH balance<div class="mini-tog mini-on" id="vis-status_wallet" onclick="toggleStatVis(this,'status_wallet')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="9" height="9"><path d="M1 8s3-5 7-5 7 5 7 5-3 5-7 5-7-5-7-5z"/><circle cx="8" cy="8" r="2"/></svg>pub</div></div><div class="sv" id="st-eth">—</div><div class="ss" id="st-addr">—</div></div>
       <div class="stat"><div class="sl_">Uptime<div class="mini-tog mini-off" id="vis-status_uptime" onclick="toggleStatVis(this,'status_uptime')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="9" height="9"><path d="M2 2l12 12M6.5 6.6A2 2 0 009.4 9.5M4.2 4.3C2.8 5.4 1.8 7 1 8c1.3 2 4 5 7 5a7 7 0 003.8-1.2M7 3.1A7 7 0 0115 8c-.4.7-1 1.6-1.8 2.3"/></svg>prv</div></div><div class="sv" id="st-uptime">—</div><div class="ss" id="st-since">—</div></div>
     </div>
-    <div class="card"><div class="ch"><div class="lbl">Live log</div></div><div class="cb" style="padding:7px 15px"><div class="lw" id="log-list"><div class="empty">loading...</div></div></div></div>
+    <div class="card"><div class="ch"><div class="ch-l"><div class="lbl">Live log</div></div><div class="mini-tog mini-off" id="vis-live_log" onclick="toggleStatVis(this,'live_log')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="9" height="9"><path d="M2 2l12 12M6.5 6.6A2 2 0 009.4 9.5M4.2 4.3C2.8 5.4 1.8 7 1 8c1.3 2 4 5 7 5a7 7 0 003.8-1.2M7 3.1A7 7 0 0115 8c-.4.7-1 1.6-1.8 2.3"/></svg>prv</div></div><div class="cb" style="padding:7px 15px"><div class="lw" id="log-list"><div class="empty">loading...</div></div></div></div>
   </div>
 
   <!-- SIGNIFICANT -->
@@ -258,7 +258,7 @@ input[type=range]{width:100%;display:block;accent-color:var(--a);cursor:pointer}
 
         <!-- System prompt -->
         <div class="card">
-          <div class="ch"><div class="ch-l"><div class="lbl">System prompt</div><div class="sub-tag">identity · always private</div></div><button class="btn btn-sm" id="sp-btn" onclick="toggleSP()">Edit</button></div>
+          <div class="ch"><div class="ch-l"><div class="lbl">System prompt</div><div class="sub-tag">identity</div></div><div style="display:flex;gap:6px;align-items:center"><div class="eye-tog eye-off" id="vis-system_prompt" onclick="toggleVis(this,'system_prompt')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="11" height="11"><path d="M2 2l12 12M6.5 6.6A2 2 0 009.4 9.5M4.2 4.3C2.8 5.4 1.8 7 1 8c1.3 2 4 5 7 5a7 7 0 003.8-1.2M7 3.1A7 7 0 0115 8c-.4.7-1 1.6-1.8 2.3"/></svg>Private</div><button class="btn btn-sm" id="sp-btn" onclick="toggleSP()">Edit</button></div></div>
           <div class="sp-view" id="sp-view">loading...</div>
           <div class="edit-drop" id="sp-drop">
             <div class="edit-inner">
@@ -388,7 +388,7 @@ input[type=range]{width:100%;display:block;accent-color:var(--a);cursor:pointer}
 <script>
 const ADMIN_SID='admin';let PW='',BOT_NAME='Zara',currentPersonality={},currentMemSession=null;
 let currentRules=[];
-let currentVisibility={rules:true,ego_notes:true,mbti:true,status_matrix:true,status_rooms:true,status_wallet:true,status_uptime:false,mood_7d:true,reflection_history:false,significant_interactions:false,live_log:false};
+let currentVisibility={system_prompt:false,rules:true,ego_notes:true,mbti:true,status_matrix:true,status_rooms:true,status_wallet:true,status_uptime:false,mood_7d:true,reflection_history:false,significant_interactions:false,live_log:false};
 
 const TBM={status:['Status','live connection and activity'],significant:['Significant interactions','scored above comfort thresholds'],chat:['Chat','private · history persists'],memory:['Memory','conversation history'],persona:['Persona','character, rules, ego and memory settings']};
 const MBTI_DESC={ENFP:'Chatty and spontaneous. Draws people in with warmth and big ideas. Emotionally reactive.',INTJ:'Calculated and reserved. Speaks precisely. Hard to rattle.',INFP:'Quiet but intense. Follows meaningful threads. Sensitive to emotional pressure.',ENTP:'Argumentative, curious, fast. Loves a debate.',ISFJ:'Steady and attentive. Remembers context well.',ESTP:'Blunt and immediate. Reacts fast.',INTP:'Precise and analytical.',ENTJ:'Direct and deliberate. Pushes back confidently.'};

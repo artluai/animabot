@@ -68,6 +68,7 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
 .sl-fill{height:100%;background:var(--a);border-radius:2px}
 .sl-ends{display:flex;justify-content:space-between}.sl-end{font-size:10px;color:var(--t3)}
 .sp-text{font-size:12px;color:var(--t2);line-height:1.8;font-family:monospace;white-space:pre-wrap}
+.sp-text{font-size:12px;color:var(--t2);line-height:1.8;font-family:monospace;white-space:pre-wrap}
 .rules-list{display:flex;flex-direction:column;gap:1px}
 .rule-item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--b1)}
 .rule-item:last-child{border:none}
@@ -99,6 +100,12 @@ body{background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSyst
   <div id="sec-ego" style="display:none">
     <div class="section-title">Current mood</div>
     <div class="card"><div class="cb" style="padding:0"><div class="ego-wrap" id="p-ego"></div></div></div>
+  </div>
+
+  <!-- System prompt -->
+  <div id="sec-system_prompt" style="display:none">
+    <div class="section-title">System prompt</div>
+    <div class="card"><div class="cb"><div class="sp-text" id="p-sp"></div></div></div>
   </div>
 
   <!-- Rules -->
@@ -183,6 +190,9 @@ async function load(){
     egoEl.innerHTML=personality.ego_notes?`"${esc(personality.ego_notes)}"<div class="ego-meta">last reflection: ${personality.last_reflection?new Date(personality.last_reflection).toLocaleString():'never'}</div>`:`"${esc(DEFAULT_EGO[mbti]||DEFAULT_EGO['ENFP'])}"<div class="ego-meta">default — no reflections yet</div>`;
     show('sec-ego');
   }
+
+  // System prompt
+  if(vis.system_prompt===true&&personality.system_prompt){document.getElementById("p-sp").textContent=personality.system_prompt;show("sec-system_prompt");}
 
   // Rules
   if(vis.rules!==false&&personality.rules?.length){
