@@ -6,6 +6,7 @@ import { handleCommand } from "../core/commands.js";
 import { wallet, getBalance } from "../core/wallet.js";
 import "dotenv/config";
 
+const BOT_START_TIME = Date.now();
 const rooms = new Map();
 function getRoomState(roomId) {
   if (!rooms.has(roomId)) {
@@ -45,6 +46,7 @@ You are ${botName} — stay in character always.`;
 async function handleMessage(client, event, room) {
   if (event.getType() !== "m.room.message") return;
   if (event.getSender() === client.getUserId()) return;
+  if (event.getTs() < BOT_START_TIME) return;
 
   const body = event.getContent().body || "";
   const sender = event.getSender();

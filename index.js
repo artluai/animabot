@@ -16,13 +16,6 @@ async function main() {
 
   await startMatrix();
 
-  // Set avatar after Matrix connects
-  if (process.env.BOT_AVATAR_URL) {
-    setMatrixAvatar(process.env.BOT_AVATAR_URL).catch(err =>
-      log("WARN", `Avatar set failed: ${err.message}`)
-    );
-  }
-
   startReflectionCron();
 
   log("OK", "Animabot running");
