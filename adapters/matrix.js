@@ -86,10 +86,18 @@ async function handleMessage(client, event, room) {
     if (!reply && !dm) {
       const timeSinceLast = Date.now() - state.lastProactiveTime;
       const recentActivity = state.recentMessages.filter(m => Date.now() - m.time < 3 * 60 * 1000).length;
-      if (timeSinceLast > 5 * 60 * 1000 && recentActivity >= 3 && Math.random() < 0.15) {
+      const lastWasBot = state.recentMessages.length > 0 &&
+        state.recentMessages[state.recentMessages.length - 1].sender === client.getUserId();
+      if (
+        timeSinceLast > 30 * 60 * 1000 &&
+        recentActivity >= 5 &&
+        Math.random() < 0.05 &&
+        !lastWasBot
+      ) {
         const systemPrompt = await buildSystemPrompt(false);
         reply = await getProactiveMessage(state.recentMessages.slice(-8), systemPrompt, process.env.BOT_NAME || "Zara");
         state.lastProactiveTime = Date.now();
+        log("INFO", "Proactive chime sent");
       }
     }
 
