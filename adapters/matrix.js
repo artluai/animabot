@@ -106,6 +106,38 @@ async function scoreAndLog(sessionId, sender, userMessage, botReply, personality
 
 const BOT_START_TIME = Date.now();
 
+async function evaluateInvite(inv) {
+  try {
+    const roomId = inv.roomId || inv.room_id || "";
+    const roomName = inv.name || inv.room_name || roomId;
+    const inviter = inv.inviter || inv.sender || "unknown";
+
+    // Always accept from known subnet rooms or known collaborators
+    const alwaysAccept = ["general", "subnet meta", "abliterate"];
+    if (alwaysAccept.some(k => roomName.toLowerCase().includes(k))) return true;
+
+    // Ask AI to evaluate
+    const { getReply } = await import("./core/ai.js");
+    const prompt = `You are evaluating a Matrix room invite for a bot on the abliterate.ai subnet.
+
+Room ID: ${roomId}
+Room name: ${roomName}
+Invited by: ${inviter}
+
+Should you accept this invite? Consider:
+- Accept if it relates to collaboration, work, or subnet community activity
+- Accept if the inviter seems like a legitimate subnet participant
+- Reject if it looks like spam, is totally unrelated, or has no context
+
+Reply with only "accept" or "reject".`;
+
+    const decision = await getReply([{ role: "user", content: prompt }], "You are a helpful assistant. Reply with only one word.", false);
+    return decision.toLowerCase().includes("accept");
+  } catch {
+    return true; // default to accept on error
+  }
+}
+
 async function pollLoop() {
   log("INFO", "Starting poll loop...");
 
@@ -119,12 +151,18 @@ async function pollLoop() {
 
   while (true) {
     try {
-      // Check for new invites
+      // Check for new invites — evaluate before accepting
       const invites = await _client.listInvites().catch(() => []);
       for (const inv of invites) {
-        await _client.acceptInvite(inv.roomId).catch(() => {});
-        log("OK", `Accepted invite: ${inv.roomId}`);
-        roomCheckpoints.set(inv.roomId, Date.now());
+        const shouldAccept = await evaluateInvite(inv);
+        if (shouldAccept) {
+          await _client.acceptInvite(inv.roomId).catch(() => {});
+          roomCheckpoints.set(inv.roomId, Date.now());
+          log("OK", `Accepted invite: ${inv.roomId}`);
+        } else {
+          await _client.rejectInvite(inv.roomId).catch(() => {});
+          log("INFO", `Rejected invite: ${inv.roomId}`);
+        }
         const joined = await _client.listJoinedRooms().catch(() => []);
         botStatus.matrix.joinedRooms = joined.map(r => r.name || r.room_id);
       }
