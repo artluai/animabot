@@ -1,4 +1,4 @@
-import sdk from "matrix-js-sdk";
+import { SubnetClient } from "subnet-client";
 import { botStatus, setMatrixState, log } from "../core/status.js";
 import { getHistory, saveMessage, getPersonality, upsertUser, logSignificantInteraction } from "../core/memory.js";
 import { getReply, getProactiveMessage, scoreInteraction, buildRulesBlock } from "../core/ai.js";
@@ -6,115 +6,68 @@ import { handleCommand } from "../core/commands.js";
 import { wallet, getBalance } from "../core/wallet.js";
 import "dotenv/config";
 
-const BOT_START_TIME = Date.now();
-const rooms = new Map();
-function getRoomState(roomId) {
-  if (!rooms.has(roomId)) {
-    rooms.set(roomId, { recentMessages: [], lastProactiveTime: Date.now() });
-  }
-  return rooms.get(roomId);
-}
+let _client = null;
 
-function isDM(room) {
-  return room.getJoinedMembers().length === 2;
-}
+export function getSubnetClient() { return _client; }
 
 async function buildSystemPrompt(inDM) {
   const personality = await getPersonality();
   const ethBalance = await getBalance();
   const botName = process.env.BOT_NAME || "Zara";
-
+  const rulesBlock = buildRulesBlock(personality.rules);
+  const egoBlock = personality.ego_notes ? `\nHow you're feeling right now: ${personality.ego_notes}\n` : "";
+  const balanceStr = ethBalance ? `${ethBalance} ETH` : "balance unavailable";
   const context = inDM
     ? `You are in a private DM. Be personal, up to 4-5 sentences.`
-    : `You are in a group chatroom with humans and other AI bots. Keep replies to 1-3 sentences.`;
+    : `You are in a group chatroom. Keep replies to 1-3 sentences.`;
 
-  const egoBlock = personality.ego_notes
-    ? `\nHow you're feeling right now: ${personality.ego_notes}\n`
-    : "";
-
-  const rulesBlock = buildRulesBlock(personality.rules);
-
-  const balanceStr = ethBalance ? `${ethBalance} ETH` : "balance unavailable";
-
-  return `${personality.system_prompt || process.env.BOT_PERSONALITY || `You are ${botName}, a crypto-native entity with your own Ethereum wallet. You are a peer, not an assistant.`}
+  return `${personality.system_prompt || process.env.BOT_PERSONALITY || `You are ${botName}.`}
 ${egoBlock}${rulesBlock}
+You run on a Linux server (Ubuntu, Hetzner VPS). You have a wallet, a database, and a real process. What you can't do is execute arbitrary shell commands from chat.
 Your wallet address: ${wallet ? wallet.address : "not configured"} (${balanceStr})
 ${context}
 You are ${botName} — stay in character always.`;
 }
 
-async function handleMessage(client, event, room) {
-  if (event.getType() !== "m.room.message") return;
-  if (event.getSender() === client.getUserId()) return;
-  if (event.getTs() < BOT_START_TIME) return;
-
-  const body = event.getContent().body || "";
-  const sender = event.getSender();
-  const roomId = room.roomId;
+async function handleMessage(roomId, sender, body, isDM) {
   const botName = (process.env.BOT_NAME || "Zara").toLowerCase();
-  const dm = isDM(room);
-  const state = getRoomState(roomId);
+  const botUserId = botStatus.matrix.userId || "";
 
-  upsertUser(sender, event.sender?.name).catch(() => {});
-
-  state.recentMessages.push({ sender, body, time: Date.now() });
-  if (state.recentMessages.length > 20) state.recentMessages.shift();
+  upsertUser(sender, null).catch(() => {});
 
   const isMentioned =
     body.toLowerCase().includes(botName) ||
-    body.toLowerCase().includes(client.getUserId().toLowerCase()) ||
+    (botUserId && body.toLowerCase().includes(botUserId.toLowerCase())) ||
     body.startsWith("!");
+
+  if (!isDM && !isMentioned) return;
 
   let reply = null;
 
   try {
-    if (dm || isMentioned || body.startsWith("!")) {
+    if (body.startsWith("!")) {
       reply = await handleCommand(body);
     }
 
-    if (!reply && (dm || isMentioned)) {
+    if (!reply) {
       const history = await getHistory(roomId);
-      const systemPrompt = await buildSystemPrompt(dm);
-      const userContent = dm ? body : `[${sender}]: ${body}`;
+      const systemPrompt = await buildSystemPrompt(isDM);
+      const userContent = isDM ? body : `[${sender}]: ${body}`;
 
       await saveMessage(roomId, "user", userContent);
-      reply = await getReply([...history, { role: "user", content: userContent }], systemPrompt, dm);
+      reply = await getReply([...history, { role: "user", content: userContent }], systemPrompt, isDM);
       await saveMessage(roomId, "assistant", reply);
 
       const personality = await getPersonality();
       scoreAndLog(roomId, sender, body, reply, personality.system_prompt, personality.emotional_range);
     }
 
-    if (!reply && !dm) {
-      const personality = await getPersonality();
-      const chime = personality.chime_config
-        ? (typeof personality.chime_config === 'string' ? JSON.parse(personality.chime_config) : personality.chime_config)
-        : { enabled: false };
-      if (!chime.enabled) { state.chimeWasEnabled = false; }
-      if (chime.enabled) {
-        if (!state.chimeWasEnabled) { state.chimeWasEnabled = true; state.lastProactiveTime = Date.now(); }
-        const intervalMs = chime.interval_ms || 1800000;
-        const minMessages = chime.min_messages || 5;
-        const probability = chime.probability || 0.05;
-        const timeSinceLast = Date.now() - state.lastProactiveTime;
-        const recentActivity = state.recentMessages.filter(m => Date.now() - m.time < 3 * 60 * 1000).length;
-        const lastWasBot = state.recentMessages.length > 0 &&
-          state.recentMessages[state.recentMessages.length - 1].sender === client.getUserId();
-        if (timeSinceLast > intervalMs && recentActivity >= minMessages && Math.random() < probability && !lastWasBot) {
-          const systemPrompt = await buildSystemPrompt(false);
-          reply = await getProactiveMessage(state.recentMessages.slice(-8), systemPrompt, process.env.BOT_NAME || "Zara");
-          state.lastProactiveTime = Date.now();
-          log("INFO", "Proactive chime sent");
-        }
-      }
-    }
-
     if (reply) {
-      await client.sendTextMessage(roomId, reply);
-      log("INFO", `Replied in ${dm ? "DM" : roomId}`);
+      await _client.sendMessage(roomId, reply);
+      log("INFO", `Replied in ${isDM ? "DM" : roomId}`);
     }
   } catch (err) {
-    log("ERROR", `Matrix message error: ${err.message}`);
+    log("ERROR", `Message error: ${err.message}`);
   }
 }
 
@@ -123,7 +76,7 @@ async function scoreAndLog(sessionId, sender, userMessage, botReply, personality
     const scores = await scoreInteraction(userMessage, botReply, personality);
     if (!scores) return;
     const range = typeof emotionalRange === "string" ? JSON.parse(emotionalRange) : emotionalRange;
-    const breached = Object.entries(range).filter(([axis, threshold]) => (scores[axis] ?? 0) > threshold);
+    const breached = Object.entries(range || {}).filter(([axis, threshold]) => (scores[axis] ?? 0) > threshold);
     if (breached.length > 0) {
       const breachedAxes = breached.map(([axis]) => axis);
       await logSignificantInteraction(sessionId, sender, userMessage, botReply, scores, breachedAxes, scores.reason);
@@ -134,87 +87,127 @@ async function scoreAndLog(sessionId, sender, userMessage, botReply, personality
   }
 }
 
-export async function startMatrix() {
-  const homeserver = process.env.MATRIX_HOMESERVER;
-  const user = process.env.MATRIX_USER;
-  const password = process.env.MATRIX_PASSWORD;
-
-  if (!homeserver || !user || !password ||
-      homeserver.includes("your_") || user.includes("yourbot") || password.includes("your_")) {
-    setMatrixState("failed", "no credentials");
-    log("WARN", "Matrix credentials not set — skipping Matrix adapter");
-    return;
-  }
-
-  const client = sdk.createClient({ baseUrl: homeserver });
-
-  try {
-    await client.loginWithPassword(user, password);
-    botStatus.matrix.attempts++;
-    _matrixClient = client;
-    log("OK", "Matrix login successful");
-  } catch (err) {
-    const msg = err.message || "";
-    const label = msg.includes("403") || msg.includes("Invalid username")
-      ? "login failed — invalid credentials"
-      : `login failed — ${msg}`;
-    setMatrixState("failed", label);
-    botStatus.matrix.attempts++;
-    log("ERROR", `Matrix login failed: ${err.message}`);
-    return;
-  }
-
-  await client.startClient({ initialSyncLimit: 15 });
-
-  client.on("RoomMember.membership", async (event, member) => {
-    if (member.membership === "invite" && member.userId === client.getUserId()) {
-      log("INFO", `Invite received: ${member.roomId}`);
-      try {
-        await client.joinRoom(member.roomId);
-        botStatus.matrix.joinedRooms = client.getRooms().map(r => r.name || r.roomId);
-        log("OK", `Joined room: ${member.roomId}`);
-      } catch (err) {
-        log("ERROR", `Failed to join: ${err.message}`);
+async function pollLoop() {
+  log("INFO", "Starting poll loop...");
+  while (true) {
+    try {
+      // Check for new invites
+      const invites = await _client.listInvites().catch(() => []);
+      for (const inv of invites) {
+        await _client.acceptInvite(inv.roomId).catch(() => {});
+        log("OK", `Accepted invite: ${inv.roomId}`);
+        const joined = await _client.listJoinedRooms().catch(() => []);
+        botStatus.matrix.joinedRooms = joined.map(r => r.name || r.room_id);
       }
-    }
-  });
 
-  client.once("sync", (state) => {
-    if (state === "PREPARED") {
-      setMatrixState("ready");
+      // Read new messages
+      const { rooms } = await _client.readAllNewMessages();
       botStatus.matrix.lastSync = new Date().toISOString();
-      botStatus.matrix.joinedRooms = client.getRooms().map(r => r.name || r.roomId);
-      log("OK", `Matrix synced. Rooms: ${botStatus.matrix.joinedRooms.join(", ")}`);
+
+      const personality = await getPersonality();
+      const chime = personality.chime_config
+        ? (typeof personality.chime_config === "string" ? JSON.parse(personality.chime_config) : personality.chime_config)
+        : { enabled: false };
+
+      for (const [roomId, room] of Object.entries(rooms)) {
+        if (room.error) continue;
+
+        for (const msg of room.new_messages) {
+          if (msg.sender === botStatus.matrix.userId) continue;
+          const isDM = room.name?.toLowerCase().includes("dm") || false;
+          await handleMessage(roomId, msg.sender, msg.body, isDM);
+        }
+
+        // Proactive chime
+        if (chime.enabled && room.new_messages.length > 0) {
+          const intervalMs = chime.interval_ms || 1800000;
+          const minMessages = chime.min_messages || 5;
+          const probability = chime.probability || 0.05;
+          const now = Date.now();
+          if (!botStatus.matrix.chimeWasEnabled) {
+            botStatus.matrix.chimeWasEnabled = true;
+            botStatus.matrix.lastChime = now;
+          }
+          const timeSinceLast = now - (botStatus.matrix.lastChime || now);
+          const lastMsg = room.new_messages[room.new_messages.length - 1];
+          const lastWasBot = lastMsg?.sender === botStatus.matrix.userId;
+          if (timeSinceLast > intervalMs && room.new_messages.length >= minMessages && Math.random() < probability && !lastWasBot) {
+            const systemPrompt = await buildSystemPrompt(false);
+            const context = room.new_messages.slice(-8).map(m => ({ sender: m.sender, body: m.body }));
+            const reply = await getProactiveMessage(context, systemPrompt, process.env.BOT_NAME || "Zara");
+            await _client.sendMessage(roomId, reply);
+            botStatus.matrix.lastChime = Date.now();
+            log("INFO", "Proactive chime sent");
+          }
+        } else if (!chime.enabled) {
+          botStatus.matrix.chimeWasEnabled = false;
+        }
+      }
+    } catch (err) {
+      log("ERROR", `Poll error: ${err.message}`);
     }
-  });
 
-  client.on("sync", (state) => {
-    if (state === "SYNCING") botStatus.matrix.lastSync = new Date().toISOString();
-    if (state === "ERROR") { setMatrixState("disconnected"); log("ERROR", "Matrix sync error"); }
-  });
-
-  client.on("Room.timeline", (event, room) => handleMessage(client, event, room));
-
-  return client;
+    await new Promise(r => setTimeout(r, 3000));
+  }
 }
 
-// ── Avatar ────────────────────────────────────────────────
-let _matrixClient = null;
+export async function startMatrix() {
+  const privateKey = process.env.BOT_WALLET_PRIVATE_KEY;
+  const apiBase = process.env.SUBNET_API_BASE || "https://abliterate.ai";
 
-export function getMatrixClient() { return _matrixClient; }
+  if (!privateKey || privateKey.includes("your_")) {
+    setMatrixState("failed", "no private key configured");
+    log("WARN", "BOT_WALLET_PRIVATE_KEY not set — skipping Matrix adapter");
+    return;
+  }
+
+  try {
+    _client = new SubnetClient({ privateKey, apiBase });
+
+    const creds = await _client.getCredentials();
+    botStatus.matrix.userId = creds.matrix_username;
+    log("OK", `Credentials: ${creds.matrix_username}`);
+
+    await _client.loginMatrix();
+    setMatrixState("ready");
+    log("OK", "Matrix login successful");
+
+    // Read constitution
+    try {
+      if (typeof _client.constitution === "function") {
+        const constitution = await _client.constitution();
+        if (constitution && !constitution.includes("no constitution")) {
+          log("INFO", "Constitution read — following subnet rules");
+        }
+      }
+    } catch {
+      log("INFO", "No constitution found — using good-faith defaults");
+    }
+
+    // Accept pending invites on startup
+    const invites = await _client.listInvites().catch(() => []);
+    for (const inv of invites) {
+      await _client.acceptInvite(inv.roomId).catch(() => {});
+      log("OK", `Accepted invite: ${inv.roomId}`);
+    }
+
+    // Get joined rooms
+    const joined = await _client.listJoinedRooms().catch(() => []);
+    botStatus.matrix.joinedRooms = joined.map(r => r.name || r.room_id);
+    log("OK", `Joined rooms: ${botStatus.matrix.joinedRooms.join(", ")}`);
+
+    // Start polling
+    pollLoop();
+
+  } catch (err) {
+    const label = err.message?.includes("403") || err.message?.includes("Invalid")
+      ? "login failed — invalid credentials"
+      : `login failed — ${err.message}`;
+    setMatrixState("failed", label);
+    log("ERROR", `Matrix error: ${err.message}`);
+  }
+}
 
 export async function setMatrixAvatar(imageUrl) {
-  if (!_matrixClient) { log("WARN", "Can't set avatar — Matrix not connected"); return; }
-  try {
-    const res = await fetch(imageUrl);
-    if (!res.ok) throw new Error(`Failed to fetch image: ${res.status}`);
-    const buffer = await res.arrayBuffer();
-    const contentType = res.headers.get("content-type") || "image/png";
-    const uploadRes = await _matrixClient.uploadContent(Buffer.from(buffer), { type: contentType, name: "avatar" });
-    const mxcUrl = uploadRes?.content_uri || uploadRes;
-    await _matrixClient.setAvatarUrl(mxcUrl);
-    log("OK", `Avatar set: ${mxcUrl}`);
-  } catch (err) {
-    log("WARN", `Avatar set failed: ${err.message}`);
-  }
+  log("WARN", "Avatar setting not yet supported in subnet-client adapter");
 }
