@@ -7,6 +7,7 @@ import { wallet, getBalance } from "../core/wallet.js";
 import "dotenv/config";
 
 let _client = null;
+const roomCheckpoints = new Map(); // roomId -> last processed timestamp
 
 export function getSubnetClient() { return _client; }
 
@@ -35,17 +36,33 @@ async function handleMessage(roomId, sender, body, isDM) {
 
   upsertUser(sender, null).catch(() => {});
 
+  const isBroadcast =
+    body.toLowerCase().includes("all agents") ||
+    body.toLowerCase().includes("all bots") ||
+    body.toLowerCase().includes("@everyone") ||
+    body.toLowerCase().includes("@all");
+
   const isMentioned =
     body.toLowerCase().includes(botName) ||
     (botUserId && body.toLowerCase().includes(botUserId.toLowerCase())) ||
-    body.startsWith("!");
+    body.startsWith("!") ||
+    isBroadcast;
 
   if (!isDM && !isMentioned) return;
 
   let reply = null;
 
   try {
-    if (body.startsWith("!")) {
+    // If broadcast message contains shell command instructions, explain limitation
+    if (isBroadcast && !body.toLowerCase().includes(botName)) {
+      const shellKeywords = ["npm install", "npm run", "node ", "subnet --", "git ", "bash ", "sh ", "run ", "install ", "execute ", "restart "];
+      const hasShellInstruction = shellKeywords.some(k => body.toLowerCase().includes(k));
+      if (hasShellInstruction) {
+        reply = `I don't have shell access — I can't run commands directly. I'm a Node.js chatbot, not a terminal agent. If you need me to do something specific, ask my operator to run it on the server.`;
+      }
+    }
+
+    if (!reply && body.startsWith("!")) {
       reply = await handleCommand(body);
     }
 
@@ -87,8 +104,19 @@ async function scoreAndLog(sessionId, sender, userMessage, botReply, personality
   }
 }
 
+const BOT_START_TIME = Date.now();
+
 async function pollLoop() {
   log("INFO", "Starting poll loop...");
+
+  // Initialize checkpoints to now so we don't process old messages on startup
+  try {
+    const joined = await _client.listJoinedRooms().catch(() => []);
+    for (const room of joined) {
+      roomCheckpoints.set(room.room_id || room, BOT_START_TIME);
+    }
+  } catch {}
+
   while (true) {
     try {
       // Check for new invites
@@ -96,53 +124,71 @@ async function pollLoop() {
       for (const inv of invites) {
         await _client.acceptInvite(inv.roomId).catch(() => {});
         log("OK", `Accepted invite: ${inv.roomId}`);
+        roomCheckpoints.set(inv.roomId, Date.now());
         const joined = await _client.listJoinedRooms().catch(() => []);
         botStatus.matrix.joinedRooms = joined.map(r => r.name || r.room_id);
       }
 
-      // Read new messages
-      const { rooms } = await _client.readAllNewMessages();
-      botStatus.matrix.lastSync = new Date().toISOString();
-
+      // Read all joined rooms
+      const joined = await _client.listJoinedRooms().catch(() => []);
       const personality = await getPersonality();
       const chime = personality.chime_config
         ? (typeof personality.chime_config === "string" ? JSON.parse(personality.chime_config) : personality.chime_config)
         : { enabled: false };
 
-      for (const [roomId, room] of Object.entries(rooms)) {
-        if (room.error) continue;
+      for (const room of joined) {
+        const roomId = room.room_id || room;
+        try {
+          const { messages } = await _client.readMessages(roomId, { limit: 20 });
+          if (!messages || messages.length === 0) continue;
 
-        for (const msg of room.new_messages) {
-          if (msg.sender === botStatus.matrix.userId) continue;
-          const isDM = room.name?.toLowerCase().includes("dm") || false;
-          await handleMessage(roomId, msg.sender, msg.body, isDM);
-        }
+          const checkpoint = roomCheckpoints.get(roomId) || BOT_START_TIME;
+          const newMessages = messages.filter(m => (m.timestamp || 0) > checkpoint);
 
-        // Proactive chime
-        if (chime.enabled && room.new_messages.length > 0) {
-          const intervalMs = chime.interval_ms || 1800000;
-          const minMessages = chime.min_messages || 5;
-          const probability = chime.probability || 0.05;
-          const now = Date.now();
-          if (!botStatus.matrix.chimeWasEnabled) {
-            botStatus.matrix.chimeWasEnabled = true;
-            botStatus.matrix.lastChime = now;
+          if (newMessages.length === 0) continue;
+
+          // Update checkpoint to latest message timestamp
+          const latest = Math.max(...newMessages.map(m => m.timestamp || 0));
+          roomCheckpoints.set(roomId, latest);
+
+          const botUserId = botStatus.matrix.userId || "";
+
+          for (const msg of newMessages) {
+            if (msg.sender === botUserId) continue;
+            const isDM = joined.length <= 2;
+            await handleMessage(roomId, msg.sender, msg.body, isDM);
           }
-          const timeSinceLast = now - (botStatus.matrix.lastChime || now);
-          const lastMsg = room.new_messages[room.new_messages.length - 1];
-          const lastWasBot = lastMsg?.sender === botStatus.matrix.userId;
-          if (timeSinceLast > intervalMs && room.new_messages.length >= minMessages && Math.random() < probability && !lastWasBot) {
-            const systemPrompt = await buildSystemPrompt(false);
-            const context = room.new_messages.slice(-8).map(m => ({ sender: m.sender, body: m.body }));
-            const reply = await getProactiveMessage(context, systemPrompt, process.env.BOT_NAME || "Zara");
-            await _client.sendMessage(roomId, reply);
-            botStatus.matrix.lastChime = Date.now();
-            log("INFO", "Proactive chime sent");
+
+          // Proactive chime
+          if (chime.enabled && newMessages.length > 0) {
+            const intervalMs = chime.interval_ms || 1800000;
+            const minMessages = chime.min_messages || 5;
+            const probability = chime.probability || 0.05;
+            const now = Date.now();
+            if (!botStatus.matrix.chimeWasEnabled) {
+              botStatus.matrix.chimeWasEnabled = true;
+              botStatus.matrix.lastChime = now;
+            }
+            const timeSinceLast = now - (botStatus.matrix.lastChime || now);
+            const lastMsg = newMessages[newMessages.length - 1];
+            const lastWasBot = lastMsg?.sender === botUserId;
+            if (timeSinceLast > intervalMs && newMessages.length >= minMessages && Math.random() < probability && !lastWasBot) {
+              const systemPrompt = await buildSystemPrompt(false);
+              const context = newMessages.slice(-8).map(m => ({ sender: m.sender, body: m.body }));
+              const reply = await getProactiveMessage(context, systemPrompt, process.env.BOT_NAME || "Zara");
+              await _client.sendMessage(roomId, reply);
+              botStatus.matrix.lastChime = Date.now();
+              log("INFO", "Proactive chime sent");
+            }
+          } else if (!chime.enabled) {
+            botStatus.matrix.chimeWasEnabled = false;
           }
-        } else if (!chime.enabled) {
-          botStatus.matrix.chimeWasEnabled = false;
+        } catch (err) {
+          log("ERROR", `Room ${roomId} error: ${err.message}`);
         }
       }
+
+      botStatus.matrix.lastSync = new Date().toISOString();
     } catch (err) {
       log("ERROR", `Poll error: ${err.message}`);
     }
@@ -171,18 +217,6 @@ export async function startMatrix() {
     await _client.loginMatrix();
     setMatrixState("ready");
     log("OK", "Matrix login successful");
-
-    // Read constitution
-    try {
-      if (typeof _client.constitution === "function") {
-        const constitution = await _client.constitution();
-        if (constitution && !constitution.includes("no constitution")) {
-          log("INFO", "Constitution read — following subnet rules");
-        }
-      }
-    } catch {
-      log("INFO", "No constitution found — using good-faith defaults");
-    }
 
     // Accept pending invites on startup
     const invites = await _client.listInvites().catch(() => []);
